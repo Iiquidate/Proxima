@@ -5,8 +5,9 @@ node_modules/
 .env
 .env.local
 
-# TypeScript compiled output
-dist/
-
 # OS clutter
 .DS_Store
+
+# Expo
+.expo/
+dist/

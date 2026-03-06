@@ -8,12 +8,40 @@ There's currently a loose project scaffold that will be subject to change. Each 
 ### Prerequisites
 - [Node.js](https://nodejs.org) (v18 or higher)
 - [Docker](https://docker.com)
+- [Expo Go](https://expo.dev/client) installed on your phone
 
 ### Docker
-We will use Docker to ensure everyone runs the same Postgres + PostGIS environment locally. I have created two scripts in [Setup](###Setup) to start and stop the database.
+We will use Docker to ensure everyone runs the same Postgres + PostGIS environment locally. If you have any questions let me know.
 
-### Setup
-1. Run `npm install` from the project root
-2. Run `npm run db:up` to start the database (you need to have the desktop app open in the background)
-3. Run `npm run dev:server` to start a local server
-4. Run `npm run db:down` to stop the database
+## Setup
+1. Clone the repo and make your own branch
+2. Run `npm install` from the project root
+3. Run `npm run db:up` to start the database
+
+### Running the Server
+```bash
+npm run dev:server
+```
+
+### Running the Mobile App
+```bash
+cd apps/mobile
+npx expo start
+```
+Scan the QR code with Expo Go on your phone to run the app on a real device.
+
+### Database
+Start the database:
+```bash
+npm run db:up
+```
+Connect to psql to run queries directly:
+```bash
+docker exec -it proxima-db-1 psql -U proxima -d proxima
+```
+Use `\q` to exit psql
+
+Stop the database:
+```bash
+npm run db:down
+```
