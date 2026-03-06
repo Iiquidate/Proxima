@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# TypeScript compiled output
+dist/
+
+# OS clutter
+.DS_Store

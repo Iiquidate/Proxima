@@ -1,1 +1,14 @@
-mainly to make the postgres and posGIS setup uniform across machines. should make shreya and anveer's life easier
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: proxima
+      POSTGRES_PASSWORD: proxima
+      POSTGRES_DB: proxima
+    ports:
+      - "5432:5432"
+    volumes:
+      - proxima_data:/var/lib/postgresql/data
+
+volumes:
+  proxima_data:
