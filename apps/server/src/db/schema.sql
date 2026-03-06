@@ -12,6 +12,7 @@ CREATE TABLE channels (
     name TEXT NOT NULL,
     location GEOGRAPHY(POINT, 4326) NOT NULL,
     radius_meters INTEGER NOT NULL DEFAULT 100,
+    type TEXT NOT NULL DEFAULT 'community',
     created_by UUID NOT NULL REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
