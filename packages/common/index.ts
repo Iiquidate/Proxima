@@ -13,6 +13,7 @@ export interface Channel {
     lng: number;
     radiusMeters: number;
     createdBy: string;  // member or admin ID
+    type: 'official' | 'community'; // admin defined "official" locations, or user defined channels
 }
 
 export interface ChatMessage {
