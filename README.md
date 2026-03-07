@@ -30,6 +30,18 @@ npx expo start
 ```
 Scan the QR code with Expo Go on your phone to run the app on a real device.
 
+### Environment Variables
+The `.env` file is not committed to the repo for security reasons. 
+Create a file called `.env` inside `apps/server/` with the following:
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=proxima
+DB_PASSWORD=proxima
+DB_NAME=proxima
+PORT=3000
+```
+
 ### Database
 Start the database:
 ```bash
