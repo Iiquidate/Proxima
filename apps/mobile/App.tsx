@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { useLocation } from '@/src/hooks/useLocation'; // or use './src/hooks/useLocation' if this shows errors
+import { useLocation } from './src/hooks/useLocation';
 
 export default function App() {
   const {location, errorMsg} = useLocation();
