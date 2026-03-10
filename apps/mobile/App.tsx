@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLocation } from './src/hooks/useLocation';
+import LoginScreen from './src/screens/LoginScreen';
 
 export default function App() {
   const {location, errorMsg} = useLocation();
@@ -17,17 +18,18 @@ export default function App() {
   
   return (
     <View style={styles.container}>
-      <Text>{text}</Text>
+      <LoginScreen />
       <StatusBar style="auto" />
     </View>
   );
 }
 
+// changed alignItems to stretch so text boxes sizes can stay constant
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
   },
 });
