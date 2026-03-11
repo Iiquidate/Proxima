@@ -11,9 +11,8 @@ export default function LoginScreen({ navigation }: any) {
         <View style={styles.container}>
             <ImageLogo />
             <Text style={styles.labelDesign}>{'ProXIma'}</Text>
-            <Text style={styles.smallTextDesign}>{'Ensuring High-Speed Connectivity'}</Text>
-            <InputField placeHolderValue='Input Username'/>
-            <InputField placeHolderValue='Input Password'/>
+            <InputField placeHolderValue='Username'/>
+            <InputField placeHolderValue='Password'/>
             <View style={styles.buttonLoginDesign}>
                 <ButtonComponent title="Login" actionWhenPressed={() => {}}/>
                 <ButtonComponent title="Sign Up" actionWhenPressed={() => {}}/>
