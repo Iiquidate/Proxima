@@ -23,3 +23,8 @@ export interface ChatMessage {
     content: string;
     createdAt: string;  // date in the form of a string
 }
+
+export interface AuthUser {
+  id: string;
+  email?: string;
+}
