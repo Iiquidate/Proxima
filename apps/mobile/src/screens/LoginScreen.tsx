@@ -1,22 +1,29 @@
 // This is the login screen
 import React from 'react';
-import {StyleSheet, TextInput, View, Image, Text} from 'react-native';
+import {StyleSheet, TextInput, View, Image, Text, Button} from 'react-native';
 import ButtonComponent from '../components/button-style';
 import InputField from '../components/input-fields';
 import ImageLogo from '../components/login-logo';
+import { useNavigation } from '@react-navigation/native';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }: any) {
     return (
         <View style={styles.container}>
             <ImageLogo />
             <Text style={styles.labelDesign}>{'ProXIma'}</Text>
-            <Text style={styles.smallTextDesign}>{'Ensuring High-Speed Connectivity'}</Text>
-            <InputField placeHolderValue='Input Username'/>
-            <InputField placeHolderValue='Input Password'/>
+            <InputField placeHolderValue='Username'/>
+            <InputField placeHolderValue='Password'/>
             <View style={styles.buttonLoginDesign}>
                 <ButtonComponent title="Login" actionWhenPressed={() => {}}/>
                 <ButtonComponent title="Sign Up" actionWhenPressed={() => {}}/>
-            </View>     
+            </View>  
+        <View style={{ position: 'absolute', bottom: 40 }}>
+                <Button 
+                    title="Developer Skip" 
+                    color="red" 
+                    onPress={() => navigation.navigate('MainApp')}
+                />
+            </View>
         </View>
     );
 }

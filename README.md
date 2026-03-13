@@ -30,6 +30,8 @@ npx expo start
 ```
 Scan the QR code with Expo Go on your phone to run the app on a real device.
 
+**Note:** You may need to install Test Flight on IOS because the version of expo we are using is currently not officially released on the app store.
+
 ### Environment Variables
 The `.env` file is not committed to the repo for security reasons. 
 Create a file called `.env` inside `apps/server/` with the following:

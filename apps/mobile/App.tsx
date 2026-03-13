@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLocation } from './src/hooks/useLocation';
-import LoginScreen from './src/screens/LoginScreen';
+import { NavigationContainer } from '@react-navigation/native'; // 1. Add this
+import AppNavigator from './src/navigation/AppNavigator'; // 2. Add this
 
 export default function App() {
   const {location, errorMsg} = useLocation();
@@ -17,10 +18,12 @@ export default function App() {
   }
   
   return (
-    <View style={styles.container}>
-      <LoginScreen />
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <View style={styles.container}>
+        <AppNavigator />
+        <StatusBar style="auto" />
+      </View>
+    </NavigationContainer>
   );
 }
 
