@@ -17,7 +17,8 @@ We will use Docker to ensure everyone runs the same Postgres + PostGIS environme
 1. Clone the repo and make your own branch
 2. Run `npm install` from the project root
 3. Run `npm run db:up` to start the database
-
+### Note
+After your first `npm install`, please use `npm ci` for a "clean install." This keeps `package-lock.json` consistent.
 ### Running the Server
 ```bash
 npm run dev:server
