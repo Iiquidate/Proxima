@@ -33,6 +33,11 @@ router.post("/register", async (req, res) => {
     });
 
     if (insertError) {
+      try {
+        await supabaseAdmin.auth.admin.deleteUser(user.id);
+      } catch (cleanupErr) {
+        console.error("Failed to clean up Supabase auth user:", cleanupErr);
+      }
       return res.status(400).json({ error: insertError.message });
     }
 

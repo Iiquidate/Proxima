@@ -1,11 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { supabaseAdmin } from "../lib/supabase";
+import { AuthUser } from "@proxima/common";
 
 export interface AuthenticatedRequest extends Request {
-  authUser?: {
-    id: string;
-    email?: string;
-  };
+  AuthUser?: AuthUser;
 }
 
 export async function requireAuth(
@@ -31,7 +29,7 @@ export async function requireAuth(
       return res.status(401).json({ error: "Invalid or expired token" });
     }
 
-    req.authUser = {
+    req.AuthUser = {
       id: user.id,
       email: user.email,
     };
