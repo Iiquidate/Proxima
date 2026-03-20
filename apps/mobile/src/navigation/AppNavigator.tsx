@@ -9,6 +9,7 @@ import NearbyListScreen from '../screens/NearbyListScreen';
 import ChatsScreen from '../screens/ChatsScreen';
 import DMScreen from '../screens/DMScreen';
 import SettingsScreen from '../screens/SettingsScreen'
+import SignUpScreen from '../screens/SignUpScreen';
 // import SettingsScreen from '../screens/SettingsScreen'; // Make sure you create this file!
 
 const Stack = createNativeStackNavigator();
@@ -35,6 +36,12 @@ export default function AppNavigator() {
         name="Login" 
         component={LoginScreen} 
         options={{ headerShown: false }} 
+      />
+
+      <Stack.Screen 
+        name="SignUp" 
+        component={SignUpScreen} 
+        options={{ headerShown: true, title: '' }} 
       />
 
       {/* The Main App (This loads the entire Tab menu!) */}
