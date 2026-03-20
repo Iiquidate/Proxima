@@ -14,8 +14,8 @@ export default function LoginScreen({ navigation }: any) {
             <InputField placeHolderValue='Username'/>
             <InputField placeHolderValue='Password'/>
             <View style={styles.buttonLoginDesign}>
-                <ButtonComponent title="Login" actionWhenPressed={() => {}}/>
-                <ButtonComponent title="Sign Up" actionWhenPressed={() => {}}/>
+                <ButtonComponent title="Login" actionWhenPressed={() => navigation.navigate('MainApp')}/>
+                <ButtonComponent title="Sign Up" actionWhenPressed={() => {navigation.navigate('SignUp')}}/>
             </View>  
         <View style={{ position: 'absolute', bottom: 40 }}>
                 <Button 
