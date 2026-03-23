@@ -2,21 +2,21 @@
 // Code was influenced by React Native source at https://reactnative.dev/docs/textinput
 
 import React from 'react';
-import { useEffect, useState } from 'react';
 import {StyleSheet, TextInput} from 'react-native';
 
 type InputFieldBasics = {
     placeHolderValue: string;
+    value: string;
+    onChangeText: (text: string) => void;
 }
 
-export default function InputField({placeHolderValue}: InputFieldBasics) {
-    const[number, onChangeState] = useState('');
+export default function InputField({placeHolderValue, value, onChangeText}: InputFieldBasics) {
 
     return(
         <TextInput
             style={styles.input}
-            onChangeText={onChangeState}
-            value={number}
+            onChangeText={onChangeText}
+            value={value}
             placeholder={placeHolderValue}
         />
     );

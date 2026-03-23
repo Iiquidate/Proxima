@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; // 1. Import Tabs
 
 // Import screens
+import LandingScreen from '../screens/LandingScreen';
 import LoginScreen from '../screens/LoginScreen'; 
 import NearbyListScreen from '../screens/NearbyListScreen';
 import ChatsScreen from '../screens/ChatsScreen';
@@ -30,18 +31,24 @@ function MainTabNavigator() {
 // Master Stack App
 export default function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Login">
+    <Stack.Navigator initialRouteName="Landing">
       
       <Stack.Screen 
-        name="Login" 
-        component={LoginScreen} 
+        name="Landing" 
+        component={LandingScreen} 
         options={{ headerShown: false }} 
       />
+
+      <Stack.Screen
+        name="LoginScreen"
+        component={LoginScreen}
+        options={{ headerShown: true, title: '', headerBackTitle: 'Back' }}                                                                                                                                   
+      />                                            
 
       <Stack.Screen 
         name="SignUp" 
         component={SignUpScreen} 
-        options={{ headerShown: true, title: '' }} 
+        options={{ headerShown: true, title: '', headerBackTitle: 'Back' }} 
       />
 
       {/* The Main App (This loads the entire Tab menu!) */}
