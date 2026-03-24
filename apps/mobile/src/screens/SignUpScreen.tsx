@@ -12,7 +12,8 @@ export default function SignUpScreen({ navigation }: any) {
   const [password, setPassword] = useState('')
 
   async function handleSignUp() {
-      const response = await fetch('http://192.168.1.218:3000/auth/register', {                                                                                                    
+  //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
+      const response = await fetch('http://YOUR_IP:3000/auth/register', {                                                                                                    
           method: 'POST',                                                                                                                                                          
           headers: { 'Content-Type': 'application/json' },                                                                                                                         
           body: JSON.stringify({ username, email, password })                                                                                                                      
