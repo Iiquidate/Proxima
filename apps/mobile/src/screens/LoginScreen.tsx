@@ -1,56 +1,55 @@
-// This is the login screen
-import React from 'react';
-import {StyleSheet, TextInput, View, Image, Text, Button} from 'react-native';
-import ButtonComponent from '../components/button-style';
-import InputField from '../components/input-fields';
-import ImageLogo from '../components/login-logo';
-import { useNavigation } from '@react-navigation/native';
-
-export default function LoginScreen({ navigation }: any) {
-    return (
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, Button } from 'react-native';                                                                                                                   
+import ButtonComponent from '../components/button-style';                                                                                                                        
+import InputField from '../components/input-fields';                                                                                                                             
+                                                                                                                                                                                
+export default function LoginFormScreen({ navigation }: any) {
+    const [email, setEmail] = useState('')                                                                                                                                       
+    const [password, setPassword] = useState('')
+                                                                                                                                                                                
+    async function handleLogin() {
+    //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
+        const response = await fetch('http://YOUR_IP:3000/auth/login', {                                                                                                   
+            method: 'POST',                                                                                                                                                      
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })                                                                                                                            
+        })                                                                                                                                                                       
+        const data = await response.json()
+        console.log(data);
+        if (response.ok) {                                                                                                                                                       
+            navigation.navigate('MainApp')
+        } 
+        else {
+            alert(data.message || 'Login failed')
+        }                                                                                                                                                                        
+    }
+                                                                                                                                                                                
+    return (    
         <View style={styles.container}>
-            <ImageLogo />
-            <Text style={styles.labelDesign}>{'ProXIma'}</Text>
-            <InputField placeHolderValue='Username'/>
-            <InputField placeHolderValue='Password'/>
-            <View style={styles.buttonLoginDesign}>
-                <ButtonComponent title="Login" actionWhenPressed={() => navigation.navigate('MainApp')}/>
-                <ButtonComponent title="Sign Up" actionWhenPressed={() => {navigation.navigate('SignUp')}}/>
-            </View>  
-        <View style={{ position: 'absolute', bottom: 40 }}>
-                <Button 
-                    title="Developer Skip" 
-                    color="red" 
-                    onPress={() => navigation.navigate('MainApp')}
-                />
-            </View>
-        </View>
-    );
-}
+            <Text style={styles.labelDesign}>Login</Text>
+            <InputField placeHolderValue='Email' value={email} onChangeText={setEmail}/>                                                                                         
+            <InputField placeHolderValue='Password' value={password} onChangeText={setPassword}/>
+            <View style={styles.buttonDesign}>                                                                                                                                   
+                <ButtonComponent title="Login" actionWhenPressed={handleLogin}/>
+            </View>                                                                                                                                                              
+        </View> 
+    );                                                                                                                                                                           
+}               
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  labelDesign:{
-    fontSize:50,
-    color: '#60a9da',
-    fontWeight: '500',
-    position: 'absolute',
-    top: 200,
-    fontStyle: 'italic',
-  },
-  smallTextDesign:{
-    color: '#60a9da',
-    position: 'absolute',
-    top: 270,
-  },
-  buttonLoginDesign: {
-    // Lines 39-41 were researched from Google Gemini
-    flexDirection: 'row',
-    gap: 20,
-    marginTop: 15,
-  },
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },                                                                                                                                                                           
+    labelDesign: {
+        fontSize: 70,                                                                                                                                                            
+        color: '#60a9da',
+        fontWeight: '500',
+        position: 'absolute',
+        top: 175
+    },                                                                                                                                                                           
+    buttonDesign: {
+        marginTop: 15,                                                                                                                                                           
+    },          
 });
