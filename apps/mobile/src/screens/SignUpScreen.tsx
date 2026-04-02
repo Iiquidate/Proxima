@@ -26,7 +26,7 @@ export default function SignUpScreen({ navigation }: any) {
           navigation.navigate('MainApp')
       } 
       else {                                                                                                                                                                     
-          setErrorMsg(data.error || 'Sign up failed')
+          setErrorMsg(data.error || 'Signup failed')
       }                                                                                                                                                                            
   }        
 

@@ -22,7 +22,7 @@ export default function LoginFormScreen({ navigation }: any) {
             navigation.navigate('MainApp')
         } 
         else {
-          setErrorMsg(data.error || 'Sign up failed')
+          setErrorMsg(data.error || 'Login failed')
         }                                                                                                                                                                        
     }
                                                                                                                                                                                 
