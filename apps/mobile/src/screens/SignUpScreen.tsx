@@ -10,8 +10,10 @@ export default function SignUpScreen({ navigation }: any) {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   async function handleSignUp() {
+    setErrorMsg('')  // clear any previous error before trying
   //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
       const response = await fetch('http://YOUR_IP:3000/auth/register', {                                                                                                    
           method: 'POST',                                                                                                                                                          
@@ -24,7 +26,7 @@ export default function SignUpScreen({ navigation }: any) {
           navigation.navigate('MainApp')
       } 
       else {                                                                                                                                                                     
-          alert(data.message || 'Sign up failed')
+          setErrorMsg(data.error || 'Sign up failed')
       }                                                                                                                                                                            
   }        
 
@@ -33,6 +35,7 @@ export default function SignUpScreen({ navigation }: any) {
         <InputField placeHolderValue='Email' value={email} onChangeText={setEmail}/>
         <InputField placeHolderValue='Username' value={username} onChangeText={setUsername}/>
         <InputField placeHolderValue='Password' value={password} onChangeText={setPassword}/>
+        {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
         <View style={styles.buttonLoginDesign}>
             <ButtonComponent title="Create Account" actionWhenPressed={handleSignUp}/>
         </View> 
@@ -55,5 +58,11 @@ const styles = StyleSheet.create({
   },
   buttonLoginDesign: {
     marginTop: 15,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 8,
+    textAlign: 'center',
+    width: '85%',
   },
 });

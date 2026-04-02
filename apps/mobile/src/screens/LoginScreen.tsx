@@ -6,8 +6,10 @@ import InputField from '../components/input-fields';
 export default function LoginFormScreen({ navigation }: any) {
     const [email, setEmail] = useState('')                                                                                                                                       
     const [password, setPassword] = useState('')
-                                                                                                                                                                                
+    const [errorMsg, setErrorMsg] = useState('')
+                                                                                                                                                                               
     async function handleLogin() {
+        setErrorMsg('')  // clear any previous error before trying
     //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
         const response = await fetch('http://YOUR_IP:3000/auth/login', {                                                                                                   
             method: 'POST',                                                                                                                                                      
@@ -20,7 +22,7 @@ export default function LoginFormScreen({ navigation }: any) {
             navigation.navigate('MainApp')
         } 
         else {
-            alert(data.message || 'Login failed')
+          setErrorMsg(data.error || 'Sign up failed')
         }                                                                                                                                                                        
     }
                                                                                                                                                                                 
@@ -29,6 +31,7 @@ export default function LoginFormScreen({ navigation }: any) {
             <Text style={styles.labelDesign}>Login</Text>
             <InputField placeHolderValue='Email' value={email} onChangeText={setEmail}/>                                                                                         
             <InputField placeHolderValue='Password' value={password} onChangeText={setPassword}/>
+            {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
             <View style={styles.buttonDesign}>                                                                                                                                   
                 <ButtonComponent title="Login" actionWhenPressed={handleLogin}/>
             </View>                                                                                                                                                              
@@ -51,5 +54,11 @@ const styles = StyleSheet.create({
     },                                                                                                                                                                           
     buttonDesign: {
         marginTop: 15,                                                                                                                                                           
-    },          
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 8,
+        textAlign: 'center',
+        width: '85%',
+    },         
 });

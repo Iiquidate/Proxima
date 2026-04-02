@@ -1,6 +1,7 @@
 //wiring instructions from chatgpt
 import { Router } from "express";
-import { supabaseAuthClient, supabaseAdmin } from "../lib/supabase";
+import { supabaseAuthClient } from "../lib/supabase";
+import pool from "../db/connection";
 
 const router = Router();
 
@@ -27,19 +28,19 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "User was not created" });
     }
 
-    const { error: insertError } = await supabaseAdmin.from("users").insert({
-      id: user.id,
-      username,
-    });
-
-    if (insertError) {
-      try {
-        await supabaseAdmin.auth.admin.deleteUser(user.id);
-      } catch (cleanupErr) {
+    try {                                                                                                                                                                                 
+      await pool.query(                                                                                                                                                                 
+      `INSERT INTO users (id, username) VALUES ($1, $2)`,                                                                                                                               
+        [user.id, username]                                
+      );                                                                                                                                                                                  
+    } catch (insertErr) {                                                                                                                                                               
+      try {              
+        await supabaseAuthClient.auth.admin.deleteUser(user.id);
+      } catch (cleanupErr) {                                                                                                                                                              
         console.error("Failed to clean up Supabase auth user:", cleanupErr);
-      }
-      return res.status(400).json({ error: insertError.message });
-    }
+      }                                                                                                                                                                                   
+      return res.status(400).json({ error: "Failed to insert user into database" });                                                                                                      
+    }             
 
     return res.status(201).json({
       message: "Registration successful",
@@ -80,15 +81,16 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid login" });
     }
 
-    const { data: existingUser, error: selectError } = await supabaseAdmin
-      .from("users")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (selectError) {
-      return res.status(400).json({ error: selectError.message });
-    }
+    let existingUser = null;                                                                                                                                                          
+      try {                                                                                                                                                                             
+          const { rows } = await pool.query(                                                                                                                                            
+              `SELECT * FROM users WHERE id = $1`,                                                                                                                                      
+              [user.id]                                                                                                                                                                 
+          );
+          existingUser = rows[0] || null;                                                                                                                                               
+      } catch (selectErr) {                                                                                                                                                           
+          return res.status(400).json({ error: "Failed to query user from database" });
+        }      
 
     return res.status(200).json({
       message: "Login successful",
