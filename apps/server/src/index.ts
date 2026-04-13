@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 
 import authRouter from './routes/auth';
+import channelRouter from './routes/channels';
 
 const app = express();
 const httpServer = createServer(app);
@@ -24,6 +25,7 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 app.use('/auth', authRouter);
+app.use('/channels', channelRouter); 
 
 const PORT = process.env.PORT || 3000;
 
