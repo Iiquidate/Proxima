@@ -1,6 +1,7 @@
 import React, {useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl} from 'react-native';
 import { useLocation } from '../hooks/useLocation';
+import { TouchableOpacity } from 'react-native';
 
 interface Channel {
   id: string;
@@ -8,7 +9,9 @@ interface Channel {
   type: 'official' | 'community';
 }
 
-export default function ChannelListScreen({ navigation }: any) {
+export default function ChannelListScreen({ navigation, route }: any) {
+  const { userId, token } = route.params || {};
+  console.log('NearbyList params:', { userId, token }); 
   const {location, errorMsg} = useLocation();
   // The line below was researched through Google Gemini
   const [channels, setChannels] = useState<{ official: Channel[]; community: Channel[] }>({ official: [], community: [] });
@@ -26,11 +29,11 @@ export default function ChannelListScreen({ navigation }: any) {
     const latitude = location.coords.latitude; // store latitude
     const longitude = location.coords.longitude; // store longitude
 
-    //console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
+    console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
 
     try{
       // Use your IP address for the links that say YOUR_IP
-      const communityResponse = await fetch(`http://YOUR_IP:3000/channels/nearby?lat=${latitude}&lng=${longitude}`);
+      const communityResponse = await fetch(`http://10.136.246.64:3000/channels/nearby?lat=${latitude}&lng=${longitude}`);
       const communityData = await communityResponse.json();
       // The prev state was researched through Google Gemini
       setChannels(prev => ({
@@ -38,7 +41,7 @@ export default function ChannelListScreen({ navigation }: any) {
         community: communityData.communityChannels || []
       }));
 
-      const officialResponse = await fetch('http://YOUR_IP:3000/channels/official');
+      const officialResponse = await fetch('http://10.136.246.64:3000/channels/official');
       const officialData = await officialResponse.json();
       // The prev state was researched through Google Gemini
       setChannels(prev => ({
@@ -84,10 +87,19 @@ export default function ChannelListScreen({ navigation }: any) {
         data={[...channels.official, ...channels.community]}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style = {styles.text}>{item.name}</Text>
-          </View>
-        )}
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => navigation.navigate('ChatScreen', {
+                channelId: item.id,
+                channelName: item.name,
+                userId: userId,
+                token: token,
+            })}
+          >
+              <Text style={styles.text}>{item.name}</Text>
+          </TouchableOpacity>
+              )}
+
         // Researched from RefreshControl documentation at https://reactnative.dev/docs/refreshcontrol
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

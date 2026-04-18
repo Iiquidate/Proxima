@@ -11,16 +11,18 @@ import ChatsScreen from '../screens/ChatsScreen';
 import DMScreen from '../screens/DMScreen';
 import SettingsScreen from '../screens/SettingsScreen'
 import SignUpScreen from '../screens/SignUpScreen';
+import ChatScreen from '../screens/ChatScreen';
 // import SettingsScreen from '../screens/SettingsScreen'; // Make sure you create this file!
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator(); // 2. Initialize Tabs
 
 // 3. Create the Bottom Menu Map
-function MainTabNavigator() {
+function MainTabNavigator({ route }: any) {
+  const { userId, token } = route.params || {};
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="NearbyList" component={NearbyListScreen} options={{ title: 'Nearby List' }} />
+      <Tab.Screen name="NearbyList" component={NearbyListScreen} initialParams={{ userId, token }} options={{ title: 'Nearby List' }} />
       <Tab.Screen name="Chats" component={ChatsScreen} options={{ title: 'Chats' }} />
       <Tab.Screen name="DMs" component={DMScreen} options={{ title: 'DMs' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
@@ -56,6 +58,16 @@ export default function AppNavigator() {
         name="MainApp" 
         component={MainTabNavigator} 
         options={{ headerShown: false }} 
+      />
+
+      <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        options={({ route }: any) => ({                                                                                                                                                   
+          headerShown: true,
+          title: route.params?.channelName || 'Chat',                                                                                                                                   
+          headerBackTitle: 'Back',                                                                                                                                                    
+        })}
       />
 
     </Stack.Navigator>
