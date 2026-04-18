@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Button } from 'react-native';                                                                                                                   
-import ButtonComponent from '../components/button-style';                                                                                                                        
-import InputField from '../components/input-fields';                                                                                                                             
+import ButtonComponent from '../components/button-style';
+import InputField from '../components/input-fields';
+import { SERVER_URL } from '../config';                                                                                                                             
                                                                                                                                                                                 
 export default function LoginFormScreen({ navigation }: any) {
     const [email, setEmail] = useState('')                                                                                                                                       
@@ -11,15 +12,22 @@ export default function LoginFormScreen({ navigation }: any) {
     async function handleLogin() {
         setErrorMsg('')  // clear any previous error before trying
     //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
-        const response = await fetch('http://YOUR_IP:3000/auth/login', {                                                                                                   
+        const response = await fetch(`${SERVER_URL}/auth/login`, {                                                                                                   
             method: 'POST',                                                                                                                                                      
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })                                                                                                                            
         })                                                                                                                                                                       
         const data = await response.json()
         console.log(data);
-        if (response.ok) {                                                                                                                                                       
-            navigation.navigate('MainApp')
+        if (response.ok) {
+            console.log('Login data:', { userId: data.user.id, token: data.accessToken });                                                                           
+            navigation.navigate('MainApp', {                                                                                                                                                  
+                screen: 'NearbyList',                                                                                                                                                         
+                params: {
+                    userId: data.user.id,                                                                                                                                                     
+                    token: data.accessToken,                                                                                                                                                
+            },
+      });
         } 
         else {
           setErrorMsg(data.error || 'Login failed')

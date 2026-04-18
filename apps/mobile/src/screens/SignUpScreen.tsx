@@ -3,6 +3,7 @@ import {StyleSheet, TextInput, View, Image, Text} from 'react-native';
 import ButtonComponent from '../components/button-style';
 import InputField from '../components/input-fields';
 import { useNavigation } from '@react-navigation/native';
+import { SERVER_URL } from '../config';
 
 //<Text style={styles.smallTextDesign}>{'Ensuring High-Speed Connectivity'}</Text>
 
@@ -15,7 +16,7 @@ export default function SignUpScreen({ navigation }: any) {
   async function handleSignUp() {
     setErrorMsg('')  // clear any previous error before trying
   //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
-      const response = await fetch('http://YOUR_IP:3000/auth/register', {                                                                                                    
+      const response = await fetch(`${SERVER_URL}/auth/register`, {                                                                                                    
           method: 'POST',                                                                                                                                                          
           headers: { 'Content-Type': 'application/json' },                                                                                                                         
           body: JSON.stringify({ username, email, password })                                                                                                                      
@@ -23,7 +24,13 @@ export default function SignUpScreen({ navigation }: any) {
       const data = await response.json()
       console.log(data) 
       if (response.ok) {
-          navigation.navigate('MainApp')
+          navigation.navigate('MainApp', {
+              screen: 'NearbyList',
+              params: {
+                  userId: data.user.id,
+                  token: data.session?.access_token,
+              },
+          });
       } 
       else {                                                                                                                                                                     
           setErrorMsg(data.error || 'Signup failed')
