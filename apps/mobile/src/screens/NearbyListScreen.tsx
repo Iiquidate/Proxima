@@ -2,6 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl} from 'react-native';
 import { useLocation } from '../hooks/useLocation';
 import { TouchableOpacity } from 'react-native';
+import { SERVER_URL } from '../config';
 
 interface Channel {
   id: string;
@@ -33,7 +34,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
 
     try{
       // Use your IP address for the links that say YOUR_IP
-      const communityResponse = await fetch(`https://riverbank-coeditor-overcrowd.ngrok-free.dev/channels/nearby?lat=${latitude}&lng=${longitude}`);
+      const communityResponse = await fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`);
       const communityData = await communityResponse.json();
       // The prev state was researched through Google Gemini
       setChannels(prev => ({
@@ -41,7 +42,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
         community: communityData.communityChannels || []
       }));
 
-      const officialResponse = await fetch('https://riverbank-coeditor-overcrowd.ngrok-free.dev/channels/official');
+      const officialResponse = await fetch(`${SERVER_URL}/channels/official`);
       const officialData = await officialResponse.json();
       // The prev state was researched through Google Gemini
       setChannels(prev => ({

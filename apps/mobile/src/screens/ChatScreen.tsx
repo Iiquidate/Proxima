@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { io, Socket } from 'socket.io-client';
-
-const SERVER_URL = 'https://riverbank-coeditor-overcrowd.ngrok-free.dev';
+import { SERVER_URL } from '../config';
 
 export default function ChatScreen({ route }: any) {
     const { channelId, channelName, userId, token } = route.params;
