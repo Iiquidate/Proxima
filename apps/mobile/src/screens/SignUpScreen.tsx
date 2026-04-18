@@ -15,7 +15,7 @@ export default function SignUpScreen({ navigation }: any) {
   async function handleSignUp() {
     setErrorMsg('')  // clear any previous error before trying
   //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
-      const response = await fetch('http://10.136.246.64:3000/auth/register', {                                                                                                    
+      const response = await fetch('https://riverbank-coeditor-overcrowd.ngrok-free.dev/auth/register', {                                                                                                    
           method: 'POST',                                                                                                                                                          
           headers: { 'Content-Type': 'application/json' },                                                                                                                         
           body: JSON.stringify({ username, email, password })                                                                                                                      
@@ -23,7 +23,13 @@ export default function SignUpScreen({ navigation }: any) {
       const data = await response.json()
       console.log(data) 
       if (response.ok) {
-          navigation.navigate('MainApp')
+          navigation.navigate('MainApp', {
+              screen: 'NearbyList',
+              params: {
+                  userId: data.user.id,
+                  token: data.session?.access_token,
+              },
+          });
       } 
       else {                                                                                                                                                                     
           setErrorMsg(data.error || 'Signup failed')

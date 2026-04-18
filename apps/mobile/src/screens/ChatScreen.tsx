@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { io, Socket } from 'socket.io-client';
 
-const SERVER_URL = 'http://10.136.246.64:3000';
+const SERVER_URL = 'https://riverbank-coeditor-overcrowd.ngrok-free.dev';
 
 export default function ChatScreen({ route }: any) {
     const { channelId, channelName, userId, token } = route.params;
-    console.log('ChatScreen params:', { channelId, userId, token });
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
     const socketRef = useRef<Socket | null>(null);
@@ -18,7 +17,14 @@ export default function ChatScreen({ route }: any) {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(res => res.json())
-            .then(data => setMessages(data))
+            .then(data => {
+                console.log('Message history response:', JSON.stringify(data));
+                if (Array.isArray(data)) {
+                    setMessages(data);
+                } else {
+                    console.error('Unexpected message history response:', data);
+                }
+            })
             .catch(err => console.error('Failed to load messages:', err));
 
         // Connect to Socket.io
@@ -30,7 +36,7 @@ export default function ChatScreen({ route }: any) {
         });
 
         socket.on('newMessage', (message) => {
-            setMessages(prev => [...prev, message]);
+            setMessages(prev => Array.isArray(prev) ? [...prev, message] : [message]);
         });
 
         return () => {
@@ -50,17 +56,36 @@ export default function ChatScreen({ route }: any) {
     };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={90}
+        >
             <FlatList
                 ref={flatListRef}
                 data={messages}
                 keyExtractor={item => item.id}
+                contentContainerStyle={styles.messageList}
                 onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-                renderItem={({ item }) => (
-                    <View style={styles.messageBubble}>
-                        <Text style={styles.messageText}>{item.content}</Text>
-                    </View>
-                )}
+                renderItem={({ item }) => {
+                    const isOwnMessage = item.userId === userId;
+                    return (
+                        <View style={[
+                            styles.messageBubble,
+                            isOwnMessage ? styles.ownBubble : styles.otherBubble,
+                        ]}>
+                            {!isOwnMessage && (
+                                <Text style={styles.username}>{item.username}</Text>
+                            )}
+                            <Text style={[
+                                styles.messageText,
+                                isOwnMessage && styles.ownMessageText,
+                            ]}>
+                                {item.content}
+                            </Text>
+                        </View>
+                    );
+                }}
             />
             <View style={styles.inputRow}>
                 <TextInput
@@ -69,46 +94,80 @@ export default function ChatScreen({ route }: any) {
                     onChangeText={setInput}
                     placeholder="Type a message..."
                     onSubmitEditing={sendMessage}
+                    returnKeyType="send"
                 />
                 <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
                     <Text style={styles.sendText}>Send</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    messageList: {
+        paddingVertical: 10,
+    },
     messageBubble: {
+        maxWidth: '75%',
         padding: 10,
         marginHorizontal: 15,
-        marginVertical: 4,                                                                                                                                                            
-        backgroundColor: '#e8f0fe',
-        borderRadius: 8,                                                                                                                                                              
-    },                                                                                                                                                                                
-    messageText: { fontSize: 16 },
-    inputRow: {                                                                                                                                                                       
-        flexDirection: 'row',                                                                                                                                                       
-        padding: 10,
-        borderTopWidth: 1,
-        borderColor: '#ddd',                                                                                                                                                          
+        marginVertical: 3,
+        borderRadius: 12,
     },
-    input: {                                                                                                                                                                          
-        flex: 1,                                                                                                                                                                    
+    ownBubble: {
+        alignSelf: 'flex-end',
+        backgroundColor: '#5895d3',
+    },
+    otherBubble: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#e8f0fe',
+    },
+    username: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#5895d3',
+        marginBottom: 2,
+    },
+    messageText: {
+        fontSize: 16,
+        color: '#333',
+    },
+    ownMessageText: {
+        color: '#fff',
+    },
+    inputRow: {
+        flexDirection: 'row',
+        padding: 10,
+        paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+        borderTopWidth: 1,
+        borderColor: '#ddd',
+        backgroundColor: '#fff',
+    },
+    input: {
+        flex: 1,
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 20,                                                                                                                                                             
+        borderRadius: 20,
         paddingHorizontal: 15,
-        paddingVertical: 8,                                                                                                                                                           
-        fontSize: 16,                                                                                                                                                               
+        paddingVertical: 8,
+        fontSize: 16,
+        backgroundColor: '#fff',
     },
-    sendButton: {                                                                                                                                                                     
+    sendButton: {
         marginLeft: 10,
-        backgroundColor: '#5895d3',                                                                                                                                                   
-        borderRadius: 20,                                                                                                                                                           
+        backgroundColor: '#5895d3',
+        borderRadius: 20,
         paddingHorizontal: 20,
-        justifyContent: 'center',                                                                                                                                                     
+        justifyContent: 'center',
     },
-    sendText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },                                                                                                                    
+    sendText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
 });

@@ -11,7 +11,7 @@ export default function LoginFormScreen({ navigation }: any) {
     async function handleLogin() {
         setErrorMsg('')  // clear any previous error before trying
     //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
-        const response = await fetch('http://10.136.246.64:3000/auth/login', {                                                                                                   
+        const response = await fetch('https://riverbank-coeditor-overcrowd.ngrok-free.dev/auth/login', {                                                                                                   
             method: 'POST',                                                                                                                                                      
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })                                                                                                                            

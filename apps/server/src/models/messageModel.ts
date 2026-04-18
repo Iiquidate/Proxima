@@ -3,10 +3,12 @@ import { ChatMessage } from '@proxima/common';
 
 export async function getMessagesByChannelId(channelId: string): Promise<ChatMessage[]> {
     const result = await pool.query(
-        `SELECT id, channel_id AS "channelId", user_id AS "userId", content, created_at AS "createdAt"
-        FROM messages
-        WHERE channel_id = $1
-        ORDER BY created_at ASC`,
+        `SELECT m.id, m.channel_id AS "channelId", m.user_id AS "userId", u.username,
+                m.content, m.created_at AS "createdAt"
+        FROM messages m
+        JOIN users u ON m.user_id = u.id
+        WHERE m.channel_id = $1
+        ORDER BY m.created_at ASC`,
         [channelId]
     );
 
@@ -19,9 +21,15 @@ export async function createMessage(
     content: string
 ): Promise<ChatMessage> {
     const result = await pool.query(
-        `INSERT INTO messages (channel_id, user_id, content)
-        VALUES ($1, $2, $3)
-        RETURNING id, channel_id AS "channelId", user_id AS "userId", content, created_at AS "createdAt"`,
+        `WITH inserted AS (
+            INSERT INTO messages (channel_id, user_id, content)
+            VALUES ($1, $2, $3)
+            RETURNING id, channel_id, user_id, content, created_at
+        )
+        SELECT i.id, i.channel_id AS "channelId", i.user_id AS "userId", u.username,
+               i.content, i.created_at AS "createdAt"
+        FROM inserted i
+        JOIN users u ON i.user_id = u.id`,
         [channelId, userId, content]
     );
 
