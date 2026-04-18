@@ -1,19 +1,24 @@
 // Input logo on login page
-import {Image, StyleSheet, View} from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 export default function ImageLogo() {
     return(
-        <Image style={styles.imageDimensions}
-            source={require('../../assets/android-icon-foreground.png')}
-        />
+        <View style={styles.logoContainer}>
+            <Image style={styles.imageDimensions}
+                source={require('../../assets/android-icon-foreground.png')}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   imageDimensions: {
-    width: 200,
-    height: 200,
-    position: 'absolute',
-    top: 70,
+    width: 120,
+    height: 120,
+    borderRadius: 28,
   },
 });

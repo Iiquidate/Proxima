@@ -1,8 +1,9 @@
-import React, {useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { useLocation } from '../hooks/useLocation';
 import { TouchableOpacity } from 'react-native';
 import { SERVER_URL } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 interface Channel {
   id: string;
@@ -12,9 +13,9 @@ interface Channel {
 
 export default function ChannelListScreen({ navigation, route }: any) {
   const { userId, token } = route.params || {};
-  console.log('NearbyList params:', { userId, token }); 
-  const {location, errorMsg} = useLocation();
-  // The line below was researched through Google Gemini
+  const theme = useTheme();
+  console.log('NearbyList params:', { userId, token });
+  const { location, errorMsg } = useLocation();
   const [channels, setChannels] = useState<{ official: Channel[]; community: Channel[] }>({ official: [], community: [] });
 
   let text = 'Waiting to obtain location...';
@@ -33,7 +34,6 @@ export default function ChannelListScreen({ navigation, route }: any) {
     console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
 
     try{
-      // Use your IP address for the links that say YOUR_IP
       const communityResponse = await fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`);
       const communityData = await communityResponse.json();
       // The prev state was researched through Google Gemini
@@ -81,29 +81,54 @@ export default function ChannelListScreen({ navigation, route }: any) {
     }
   }, [location, errorMsg]);
 
+  const allChannels = [...channels.official, ...channels.community];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{checkStatus}</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
+      <Text style={[styles.header, { color: theme.colors.text.primary }]}>
+        Nearby
+      </Text>
+      {checkStatus ? (
+        <Text style={[styles.statusText, { color: theme.colors.text.secondary }]}>
+          {checkStatus}
+        </Text>
+      ) : null}
       <FlatList
-        data={[...channels.official, ...channels.community]}
+        data={allChannels}
         keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.item}
+            style={[styles.channelRow, { backgroundColor: theme.colors.surface.light, borderColor: theme.colors.border.light }]}
+            activeOpacity={0.6}
             onPress={() => navigation.navigate('ChatScreen', {
-                channelId: item.id,
-                channelName: item.name,
-                userId: userId,
-                token: token,
+              channelId: item.id,
+              channelName: item.name,
+              userId: userId,
+              token: token,
             })}
           >
-              <Text style={styles.text}>{item.name}</Text>
+            <View style={[styles.channelIcon, { backgroundColor: theme.colors.surface.elevated }]}>
+              <Text style={[styles.channelIconText, { color: theme.colors.primary[500] }]}>
+                {item.type === 'official' ? '#' : '~'}
+              </Text>
+            </View>
+            <View style={styles.channelDetails}>
+              <Text style={[styles.channelName, { color: theme.colors.text.primary }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.channelType, { color: theme.colors.text.tertiary }]}>
+                {item.type}
+              </Text>
+            </View>
           </TouchableOpacity>
-              )}
-
-        // Researched from RefreshControl documentation at https://reactnative.dev/docs/refreshcontrol
+        )}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary[500]}
+          />
         }
       />
     </View>
@@ -111,7 +136,61 @@ export default function ChannelListScreen({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingTop: 100},
-  text: { fontSize: 20, fontWeight: 'bold', textAlign: 'center'},
-  item: { padding: 15, borderBottomWidth: 1, borderColor: '#60a9da', width: '100%' },
+  container: {
+    flex: 1,
+    paddingTop: 60,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  statusText: {
+    fontSize: 15,
+    fontWeight: '400',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  list: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  channelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  channelIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  channelIconText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  channelDetails: {
+    flex: 1,
+  },
+  channelName: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  channelType: {
+    fontSize: 12,
+    fontWeight: '400',
+    textTransform: 'capitalize',
+    marginTop: 2,
+  },
 });
