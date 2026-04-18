@@ -1,51 +1,79 @@
 import React, { useState } from 'react';
-import {StyleSheet, TextInput, View, Image, Text} from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import ButtonComponent from '../components/button-style';
 import InputField from '../components/input-fields';
-import { useNavigation } from '@react-navigation/native';
 import { SERVER_URL } from '../config';
-
-//<Text style={styles.smallTextDesign}>{'Ensuring High-Speed Connectivity'}</Text>
+import { useTheme } from '../context/ThemeContext';
 
 export default function SignUpScreen({ navigation }: any) {
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const theme = useTheme();
 
   async function handleSignUp() {
-    setErrorMsg('')  // clear any previous error before trying
-  //  find your ip with `ipconfig getifaddr en0` on mac or `ipconfig` on windows (IPv4)
-      const response = await fetch(`${SERVER_URL}/auth/register`, {                                                                                                    
-          method: 'POST',                                                                                                                                                          
-          headers: { 'Content-Type': 'application/json' },                                                                                                                         
-          body: JSON.stringify({ username, email, password })                                                                                                                      
-      })          
-      const data = await response.json()
-      console.log(data) 
-      if (response.ok) {
-          navigation.navigate('MainApp', {
-              screen: 'NearbyList',
-              params: {
-                  userId: data.user.id,
-                  token: data.session?.access_token,
-              },
-          });
-      } 
-      else {                                                                                                                                                                     
-          setErrorMsg(data.error || 'Signup failed')
-      }                                                                                                                                                                            
-  }        
+    setErrorMsg('');
+    const response = await fetch(`${SERVER_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await response.json();
+    console.log(data);
+    if (response.ok) {
+      navigation.navigate('MainApp', {
+        screen: 'NearbyList',
+        params: {
+          userId: data.user.id,
+          token: data.session?.access_token,
+        },
+      });
+    } else {
+      setErrorMsg(data.error || 'Signup failed');
+    }
+  }
 
-  return(<View style={styles.container}>
-        <Text style={styles.labelDesign}>{'Sign Up'}</Text>
-        <InputField placeHolderValue='Email' value={email} onChangeText={setEmail}/>
-        <InputField placeHolderValue='Username' value={username} onChangeText={setUsername}/>
-        <InputField placeHolderValue='Password' value={password} onChangeText={setPassword}/>
-        {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
-        <View style={styles.buttonLoginDesign}>
-            <ButtonComponent title="Create Account" actionWhenPressed={handleSignUp}/>
-        </View> 
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
+      <Text style={[styles.title, { color: theme.colors.primary[500] }]}>
+        Create Account
+      </Text>
+      <Text style={[styles.subtitle, { color: theme.colors.text.secondary }]}>
+        Join the community
+      </Text>
+
+      <View style={styles.formContainer}>
+        <InputField
+          placeHolderValue="Email"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <InputField
+          placeHolderValue="Username"
+          value={username}
+          onChangeText={setUsername}
+        />
+        <InputField
+          placeHolderValue="Password"
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        {errorMsg ? (
+          <Text style={[styles.errorText, { color: theme.colors.error }]}>
+            {errorMsg}
+          </Text>
+        ) : null}
+
+        <View style={styles.buttonContainer}>
+          <ButtonComponent
+            title="Create Account"
+            actionWhenPressed={handleSignUp}
+            variant="primary"
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -55,21 +83,34 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
-  labelDesign:{
-    fontSize:70,
-    color: '#60a9da',
-    fontWeight: '500',
-    position: 'absolute',
-    top: 135,
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
-  buttonLoginDesign: {
-    marginTop: 15,
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    marginBottom: 40,
+  },
+  formContainer: {
+    width: '100%',
+    maxWidth: 380,
+    alignItems: 'center',
+  },
+  buttonContainer: {
+    marginTop: 24,
+    width: '100%',
+    alignItems: 'center',
   },
   errorText: {
-    color: 'red',
-    marginTop: 8,
+    marginTop: 12,
     textAlign: 'center',
     width: '85%',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

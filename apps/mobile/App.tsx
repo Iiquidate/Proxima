@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLocation } from './src/hooks/useLocation';
-import { NavigationContainer } from '@react-navigation/native'; // 1. Add this
-import AppNavigator from './src/navigation/AppNavigator'; // 2. Add this
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './src/navigation/AppNavigator';
+import { ThemeProvider } from './src/context/ThemeContext';
+import { colors } from './src/theme';
 
 export default function App() {
   const {location, errorMsg} = useLocation();
@@ -16,14 +18,16 @@ export default function App() {
     const longitude = location.coords.longitude; // store longitude
     text = `Your location is Latitude: ${latitude}, Longitude: ${longitude}`;
   }
-  
+
   return (
-    <NavigationContainer>
-      <View style={styles.container}>
-        <AppNavigator />
-        <StatusBar style="auto" />
-      </View>
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        <View style={[styles.container, { backgroundColor: colors.surface.default }]}>
+          <AppNavigator />
+          <StatusBar style="auto" />
+        </View>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 

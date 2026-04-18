@@ -1,27 +1,48 @@
-// This is the login screen
 import React from 'react';
-import {StyleSheet, View, Image, Text, Button} from 'react-native';
+import { StyleSheet, View, Text, Button, TouchableOpacity } from 'react-native';
 import ButtonComponent from '../components/button-style';
 import ImageLogo from '../components/login-logo';
+import { useTheme } from '../context/ThemeContext';
 
 export default function LandingScreen({ navigation }: any) {
+  const theme = useTheme();
 
-    return (
-      <View style={styles.container}>
-          <ImageLogo/>
-          <Text style={styles.labelDesign}>{'ProXIma'}</Text>
-          <View style={styles.buttonLoginDesign}>
-              <ButtonComponent title="Login"   actionWhenPressed={() => {navigation.navigate('LoginScreen')}}/>
-              <ButtonComponent title="Sign Up" actionWhenPressed={() => {navigation.navigate('SignUp')}}/>
-          </View>  
-      <View style={{ position: 'absolute', bottom: 40 }}>
-              <Button 
-                  title="Developer Skip" 
-                  color="red" 
-                  onPress={() => navigation.navigate('MainApp')}
-              />
-          </View>
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
+      <View style={styles.content}>
+        <ImageLogo />
+        <Text style={[styles.title, { color: theme.colors.primary[500] }]}>
+          ProXima
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.colors.text.secondary }]}>
+          Connect with people nearby
+        </Text>
+
+        <View style={styles.buttonGroup}>
+          <ButtonComponent
+            title="Sign In"
+            actionWhenPressed={() => navigation.navigate('LoginScreen')}
+            variant="primary"
+          />
+          <ButtonComponent
+            title="Create Account"
+            actionWhenPressed={() => navigation.navigate('SignUp')}
+            variant="secondary"
+          />
+        </View>
       </View>
+
+      <View style={styles.devSkip}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('MainApp')}
+          style={[styles.devButton, { borderColor: theme.colors.error }]}
+        >
+          <Text style={[styles.devButtonText, { color: theme.colors.error }]}>
+            Developer Skip
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -31,23 +52,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  labelDesign:{
-    fontSize:50,
-    color: '#60a9da',
-    fontWeight: '500',
-    position: 'absolute',
-    top: 200,
-    fontStyle: 'italic',
+  content: {
+    alignItems: 'center',
+    gap: 16,
   },
-  smallTextDesign:{
-    color: '#60a9da',
-    position: 'absolute',
-    top: 270,
+  title: {
+    fontSize: 48,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    marginTop: 24,
   },
-  buttonLoginDesign: {
-    // Lines 39-41 were researched from Google Gemini
-    flexDirection: 'row',
-    gap: 20,
-    marginTop: 15,
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    marginBottom: 32,
+  },
+  buttonGroup: {
+    marginTop: 16,
+    gap: 12,
+    minWidth: 200,
+  },
+  devSkip: {
+    position: 'absolute',
+    bottom: 40,
+  },
+  devButton: {
+    borderWidth: 1.5,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  devButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

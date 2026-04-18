@@ -1,8 +1,9 @@
-import React, {useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { useLocation } from '../hooks/useLocation';
 import { TouchableOpacity } from 'react-native';
 import { SERVER_URL } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 interface Channel {
   id: string;
@@ -12,9 +13,9 @@ interface Channel {
 
 export default function ChannelListScreen({ navigation, route }: any) {
   const { userId, token } = route.params || {};
-  console.log('NearbyList params:', { userId, token }); 
-  const {location, errorMsg} = useLocation();
-  // The line below was researched through Google Gemini
+  const theme = useTheme();
+  console.log('NearbyList params:', { userId, token });
+  const { location, errorMsg } = useLocation();
   const [channels, setChannels] = useState<{ official: Channel[]; community: Channel[] }>({ official: [], community: [] });
 
   let text = 'Waiting to obtain location...';
@@ -82,28 +83,34 @@ export default function ChannelListScreen({ navigation, route }: any) {
   }, [location, errorMsg]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{checkStatus}</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
+      <Text style={[styles.statusText, { color: theme.colors.text.secondary }]}>
+        {checkStatus}
+      </Text>
       <FlatList
         data={[...channels.official, ...channels.community]}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.item}
+            style={[styles.item, { borderColor: theme.colors.border.light }]}
             onPress={() => navigation.navigate('ChatScreen', {
-                channelId: item.id,
-                channelName: item.name,
-                userId: userId,
-                token: token,
+              channelId: item.id,
+              channelName: item.name,
+              userId: userId,
+              token: token,
             })}
           >
-              <Text style={styles.text}>{item.name}</Text>
+            <Text style={[styles.itemText, { color: theme.colors.text.primary }]}>
+              {item.name}
+            </Text>
           </TouchableOpacity>
-              )}
-
-        // Researched from RefreshControl documentation at https://reactnative.dev/docs/refreshcontrol
+        )}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary[500]}
+          />
         }
       />
     </View>
@@ -111,7 +118,25 @@ export default function ChannelListScreen({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingTop: 100},
-  text: { fontSize: 20, fontWeight: 'bold', textAlign: 'center'},
-  item: { padding: 15, borderBottomWidth: 1, borderColor: '#60a9da', width: '100%' },
+  container: {
+    flex: 1,
+    paddingTop: 100,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  item: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    width: '100%',
+  },
+  itemText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
 });

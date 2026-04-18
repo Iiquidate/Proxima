@@ -1,15 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SettingsScreen({ navigation }: any) {
+  const theme = useTheme();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Settings info will go here!</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
+      <Text style={[styles.text, { color: theme.colors.text.secondary }]}>
+        Settings info will go here!
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  text: { fontSize: 20, fontWeight: 'bold' }
+  text: { fontSize: 18, fontWeight: '500' }
 });
