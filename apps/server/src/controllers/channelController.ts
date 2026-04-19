@@ -91,9 +91,27 @@ export const createChannel = async (req: AuthenticatedRequest, res: Response) =>
 export const deleteChannel = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const id = req.params.id as string;
-        const deletedChannel = await ChannelModel.deleteChannel(id);
+        const userId = req.AuthUser?.id;
+        const userRole = req.AuthUser?.role;
 
-        return res.status(204).send(); //  
+        if (!userId) {
+            return res.status(401).json({ error: 'Authentication error' });
+        }
+        let deletedChannel = false;
+
+        if (userRole === 'admin') {
+            // Admin can delete any channel, so we call a different function that does not check for the creator of the channel
+            deletedChannel = await ChannelModel.adminDeleteChannel(id);
+        }
+        else if (userRole === 'member') {
+            deletedChannel = await ChannelModel.deleteChannel(id, userId);
+        }
+
+        if (!deletedChannel) {
+            return res.status(403).json({ error: 'Channel not found or user not authorized to delete' });
+        }
+
+        return res.status(200).json({ message: 'Channel deleted successfully', deletedChannelId: id });
     } catch (error) {
         console.error("Error in deleteChannel:", error);
         return res.status(500).json({ error: 'Internal server error' });
