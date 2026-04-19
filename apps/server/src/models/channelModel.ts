@@ -66,7 +66,18 @@ export async function createChannel(
     return result.rows[0] as Channel;
 }
 
-export async function deleteChannel(id: string): Promise<boolean> {
+export async function deleteChannel(id: string, userId: string): Promise<boolean> {
+    const result = await pool.query(
+        `DELETE FROM channels
+        WHERE id = $1 AND created_by = $2`, // Added this in order to allow only the creator of the channel to delete it, this was researched through Google Gemini
+        [id, userId]
+    );
+
+    return result.rowCount == 1;
+}
+
+// This is for admin deleting channels, it will not check for the creator of the channel
+export async function adminDeleteChannel(id: string): Promise<boolean> {
     const result = await pool.query(
         `DELETE FROM channels
         WHERE id = $1`,
