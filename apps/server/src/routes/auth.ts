@@ -48,6 +48,7 @@ router.post("/register", async (req, res) => {
         id: user.id,
         email: user.email,
         username,
+        role: 'member' // default to 'member' role for new users, don't know if admin will be directly injected into database
       },
       session: data.session,
     });
@@ -99,6 +100,7 @@ router.post("/login", async (req, res) => {
       user: existingUser ?? {
         id: user.id,
         email: user.email,
+        role: existingUser?.role || 'member', // default to 'member' if role is not set, this was researched through Google Gemini
       },
     });
   } catch (err) {
