@@ -30,7 +30,7 @@ function MainTabNavigator({ route }: any) {
           paddingTop: 4,
           height: 88,
         },
-        tabBarActiveTintColor: colors.primary[600],
+        tabBarActiveTintColor: colors.secondary.dark,
         tabBarInactiveTintColor: colors.text.tertiary,
         tabBarLabelStyle: {
           fontSize: 12,
@@ -49,8 +49,8 @@ function MainTabNavigator({ route }: any) {
 export default function AppNavigator() {
   return (
     <Stack.Navigator initialRouteName="Landing" screenOptions={{
-        headerStyle: { backgroundColor: colors.surface.light },
-        headerTintColor: colors.primary[600],
+        headerStyle: { backgroundColor: colors.secondary.light },
+        headerTintColor: colors.secondary.dark,
         headerTitleStyle: { color: colors.text.primary, fontWeight: '600', fontSize: 17 },
         headerShadowVisible: false,
         headerBackTitle: 'Back',

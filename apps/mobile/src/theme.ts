@@ -1,33 +1,35 @@
 /**
- * Proxima Theme — Warm & Bright
- * Inviting, friendly palette that feels alive and approachable
+ * Proxima Theme — Orange & Purple
+ * Warm orange accents with soft purple tones
  */
 
 export const colors = {
-  // Primary: Warm golden amber
+  // Primary: Warm orange (buttons on auth screens)
   primary: {
-    50: '#FFF9F0',
-    100: '#FFEFD6',
-    200: '#FFDDB0',
-    300: '#FFC87A',
-    400: '#FFAE42',
-    500: '#F59B24', // Main — warm, bright amber
-    600: '#DB8518',
-    700: '#B56C12',
-    800: '#8F540E',
+    50: '#FEF5EE',
+    100: '#FDE8D6',
+    200: '#FAD0AD',
+    300: '#F6B889',
+    400: '#f2a068', // Main
+    500: '#e08a4e',
+    600: '#c97740',
+    700: '#a56035',
+    800: '#834b2a',
   },
 
-  // Secondary: Warm coral-rose
+  // Secondary: Purple tones
   secondary: {
-    50: '#FFF5F3',
-    100: '#FFE4DE',
-    200: '#FFCFC4',
-    300: '#FFB0A0',
-    400: '#FF8E78',
-    500: '#F0735C', // Main — friendly coral
-    600: '#D45E49',
-    700: '#B04A39',
-    800: '#8C3A2D',
+    light: '#ece6f0',  // Received messages, channel cards, secondary buttons
+    dark: '#635b72',   // Sent messages, active nav
+    50: '#F7F4F9',
+    100: '#ece6f0',
+    200: '#ddd4e4',
+    300: '#c4b8d0',
+    400: '#a99abb',
+    500: '#8a7a9e',
+    600: '#756888',
+    700: '#635b72',
+    800: '#4e475a',
   },
 
   // Neutrals: Warm cream tones

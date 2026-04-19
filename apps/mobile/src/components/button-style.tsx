@@ -18,9 +18,7 @@ export default function ButtonComponent({
     switch (variant) {
       case 'secondary':
         return {
-          backgroundColor: theme.colors.surface.elevated,
-          borderWidth: 1,
-          borderColor: theme.colors.border.default,
+          backgroundColor: theme.colors.secondary.light,
         };
       case 'outline':
         return {
@@ -30,7 +28,7 @@ export default function ButtonComponent({
         };
       default:
         return {
-          backgroundColor: theme.colors.primary[500],
+          backgroundColor: theme.colors.primary[400],
         };
     }
   };
@@ -38,9 +36,9 @@ export default function ButtonComponent({
   const getTextStyle = () => {
     switch (variant) {
       case 'secondary':
-        return { color: theme.colors.text.primary };
+        return { color: theme.colors.secondary.dark };
       case 'outline':
-        return { color: theme.colors.primary[500] };
+        return { color: theme.colors.primary[400] };
       default:
         return { color: theme.colors.text.inverse };
     }

@@ -86,7 +86,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
       <Text style={[styles.header, { color: theme.colors.text.primary }]}>
-        Nearby
+        Nearby Communities
       </Text>
       {checkStatus ? (
         <Text style={[styles.statusText, { color: theme.colors.text.secondary }]}>
@@ -99,7 +99,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.channelRow, { backgroundColor: theme.colors.surface.light, borderColor: theme.colors.border.light }]}
+            style={[styles.channelRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}
             activeOpacity={0.6}
             onPress={() => navigation.navigate('ChatScreen', {
               channelId: item.id,
@@ -108,8 +108,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
               token: token,
             })}
           >
-            <View style={[styles.channelIcon, { backgroundColor: theme.colors.surface.elevated }]}>
-              <Text style={[styles.channelIconText, { color: theme.colors.primary[500] }]}>
+            <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200] }]}>
+              <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
                 {item.type === 'official' ? '#' : '~'}
               </Text>
             </View>
@@ -127,7 +127,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={theme.colors.primary[500]}
+            tintColor={theme.colors.secondary.dark}
           />
         }
       />

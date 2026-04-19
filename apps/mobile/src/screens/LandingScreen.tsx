@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import ButtonComponent from '../components/button-style';
-import ImageLogo from '../components/login-logo';
+import ProximaLogo from '../components/ProximaLogo';
 import { useTheme } from '../context/ThemeContext';
 
 export default function LandingScreen({ navigation }: any) {
@@ -10,13 +10,7 @@ export default function LandingScreen({ navigation }: any) {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
       <View style={styles.content}>
-        <ImageLogo />
-        <Text style={[styles.title, { color: theme.colors.text.primary }]}>
-          ProXima
-        </Text>
-        <Text style={[styles.subtitle, { color: theme.colors.text.secondary }]}>
-          Discover conversations nearby
-        </Text>
+        <ProximaLogo width={280} />
       </View>
 
       <View style={styles.buttonGroup}>

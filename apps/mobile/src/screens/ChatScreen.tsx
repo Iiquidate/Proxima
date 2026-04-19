@@ -74,11 +74,11 @@ export default function ChatScreen({ route }: any) {
                         <View style={[
                             styles.messageBubble,
                             isOwnMessage
-                                ? [styles.ownBubble, { backgroundColor: theme.colors.primary[500] }]
-                                : [styles.otherBubble, { backgroundColor: theme.colors.surface.light, borderColor: theme.colors.border.light, borderWidth: 1 }],
+                                ? [styles.ownBubble, { backgroundColor: theme.colors.secondary.dark }]
+                                : [styles.otherBubble, { backgroundColor: theme.colors.secondary.light }],
                         ]}>
                             {!isOwnMessage && (
-                                <Text style={[styles.username, { color: theme.colors.primary[600] }]}>
+                                <Text style={[styles.username, { color: theme.colors.secondary.dark }]}>
                                     {item.username}
                                 </Text>
                             )}
@@ -94,7 +94,7 @@ export default function ChatScreen({ route }: any) {
                     );
                 }}
             />
-            <View style={[styles.inputRow, { backgroundColor: theme.colors.surface.light, borderColor: theme.colors.border.light }]}>
+            <View style={[styles.inputRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}>
                 <TextInput
                     style={[
                         styles.input,
@@ -114,7 +114,7 @@ export default function ChatScreen({ route }: any) {
                 <TouchableOpacity
                     style={[
                         styles.sendButton,
-                        { backgroundColor: input.trim() ? theme.colors.primary[500] : theme.colors.neutral[300] },
+                        { backgroundColor: theme.colors.secondary.dark },
                     ]}
                     onPress={sendMessage}
                     disabled={!input.trim()}
