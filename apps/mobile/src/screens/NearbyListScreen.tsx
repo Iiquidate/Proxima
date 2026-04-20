@@ -303,7 +303,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
         )}
         renderItem={({ item, section }) => {
           const isOutOfRange = section.title === 'All Communities' && role !== 'admin';
-          const canDelete = item.created_by === userId || role === 'admin';
+          const canDelete = item.createdBy === userId || role === 'admin';
 
           const renderDeleteAction = () => (
             <TouchableOpacity
