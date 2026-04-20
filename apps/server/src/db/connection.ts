@@ -1,3 +1,6 @@
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 import { Pool } from 'pg';
 
 const isProduction = process.env.NODE_ENV === 'production';
