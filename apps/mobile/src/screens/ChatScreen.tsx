@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { io, Socket } from 'socket.io-client';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
@@ -94,35 +95,37 @@ export default function ChatScreen({ route }: any) {
                     );
                 }}
             />
-            <View style={[styles.inputRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}>
-                <TextInput
-                    style={[
-                        styles.input,
-                        {
-                            borderColor: theme.colors.border.default,
-                            color: theme.colors.text.primary,
-                            backgroundColor: theme.colors.surface.elevated,
-                        },
-                    ]}
-                    value={input}
-                    onChangeText={setInput}
-                    placeholder="Type a message..."
-                    placeholderTextColor={theme.colors.text.tertiary}
-                    onSubmitEditing={sendMessage}
-                    returnKeyType="send"
-                />
-                <TouchableOpacity
-                    style={[
-                        styles.sendButton,
-                        { backgroundColor: theme.colors.secondary.dark },
-                    ]}
-                    onPress={sendMessage}
-                    disabled={!input.trim()}
-                    activeOpacity={0.7}
-                >
-                    <Text style={styles.sendText}>Send</Text>
-                </TouchableOpacity>
-            </View>
+            <BlurView intensity={60} tint="light" style={styles.inputBlur}>
+                <View style={styles.inputRow}>
+                    <TextInput
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: theme.colors.border.default,
+                                color: theme.colors.text.primary,
+                                backgroundColor: theme.colors.surface.light,
+                            },
+                        ]}
+                        value={input}
+                        onChangeText={setInput}
+                        placeholder="Type a message..."
+                        placeholderTextColor={theme.colors.text.tertiary}
+                        onSubmitEditing={sendMessage}
+                        returnKeyType="send"
+                    />
+                    <TouchableOpacity
+                        style={[
+                            styles.sendButton,
+                            { backgroundColor: theme.colors.secondary.dark },
+                        ]}
+                        onPress={sendMessage}
+                        disabled={!input.trim()}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.sendText}>Send</Text>
+                    </TouchableOpacity>
+                </View>
+            </BlurView>
         </KeyboardAvoidingView>
     );
 }
@@ -132,7 +135,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     messageList: {
-        paddingVertical: 12,
+        paddingTop: 12,
+        paddingBottom: Platform.OS === 'ios' ? 90 : 70,
         paddingHorizontal: 4,
     },
     messageBubble: {
@@ -160,11 +164,17 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 21,
     },
+    inputBlur: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        overflow: 'hidden',
+    },
     inputRow: {
         flexDirection: 'row',
         padding: 12,
         paddingBottom: Platform.OS === 'ios' ? 24 : 12,
-        borderTopWidth: 1,
         alignItems: 'flex-end',
         gap: 8,
     },

@@ -49,7 +49,7 @@ function MainTabNavigator({ route }: any) {
 export default function AppNavigator() {
   return (
     <Stack.Navigator initialRouteName="Landing" screenOptions={{
-        headerStyle: { backgroundColor: colors.secondary.light },
+        headerStyle: { backgroundColor: colors.surface.default },
         headerTintColor: colors.secondary.dark,
         headerTitleStyle: { color: colors.text.primary, fontWeight: '600', fontSize: 17 },
         headerShadowVisible: false,
