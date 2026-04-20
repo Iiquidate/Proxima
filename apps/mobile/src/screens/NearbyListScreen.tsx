@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated, Image, Switch} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Image, Switch} from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';

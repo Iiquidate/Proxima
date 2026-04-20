@@ -41,18 +41,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 48,
   },
-  title: {
-    fontSize: 40,
-    fontWeight: '700',
-    letterSpacing: -1,
-    marginTop: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '400',
-    marginTop: 8,
-    letterSpacing: 0.2,
-  },
   buttonGroup: {
     width: '100%',
     maxWidth: 300,

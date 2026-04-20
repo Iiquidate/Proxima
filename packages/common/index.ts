@@ -1,5 +1,3 @@
-export const DEFAULT_RADIUS_METERS = 100;
-
 export interface User {
     id: string;
     username: string;

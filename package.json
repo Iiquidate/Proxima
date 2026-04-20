@@ -7,9 +7,7 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev:server": "cd apps/server && npx ts-node src/index.ts",
-    "db:up": "docker compose up -d",
-    "db:down": "docker compose down"
+    "dev:server": "cd apps/server && npx ts-node src/index.ts"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.15.5",
