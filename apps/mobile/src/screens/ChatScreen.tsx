@@ -63,39 +63,43 @@ export default function ChatScreen({ route }: any) {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={90}
         >
-            <FlatList
-                ref={flatListRef}
-                data={messages}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.messageList}
-                onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-                renderItem={({ item }) => {
-                    const isOwnMessage = item.userId === userId;
-                    return (
-                        <View style={[
-                            styles.messageBubble,
-                            isOwnMessage
-                                ? [styles.ownBubble, { backgroundColor: theme.colors.secondary.dark }]
-                                : [styles.otherBubble, { backgroundColor: theme.colors.secondary.light }],
-                        ]}>
-                            {!isOwnMessage && (
-                                <Text style={[styles.username, { color: theme.colors.secondary.dark }]}>
-                                    {item.username}
-                                </Text>
-                            )}
-                            <Text style={[
-                                styles.messageText,
+            <View style={styles.chatArea}>
+                <FlatList
+                    ref={flatListRef}
+                    data={messages}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={styles.messageList}
+                    onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+                    renderItem={({ item }) => {
+                        const isOwnMessage = item.userId === userId;
+                        return (
+                            <View style={[
+                                styles.messageBubble,
                                 isOwnMessage
-                                    ? { color: theme.colors.text.inverse }
-                                    : { color: theme.colors.text.primary },
+                                    ? [styles.ownBubble, { backgroundColor: theme.colors.secondary.dark }]
+                                    : [styles.otherBubble, { backgroundColor: theme.colors.secondary.light }],
                             ]}>
-                                {item.content}
-                            </Text>
-                        </View>
-                    );
-                }}
-            />
-            <BlurView intensity={60} tint="light" style={styles.inputBlur}>
+                                {!isOwnMessage && (
+                                    <Text style={[styles.username, { color: theme.colors.secondary.dark }]}>
+                                        {item.username}
+                                        {item.role === 'admin' && (
+                                            <Text style={styles.adminTag}> (Admin)</Text>
+                                        )}
+                                    </Text>
+                                )}
+                                <Text style={[
+                                    styles.messageText,
+                                    isOwnMessage
+                                        ? { color: theme.colors.text.inverse }
+                                        : { color: theme.colors.text.primary },
+                                ]}>
+                                    {item.content}
+                                </Text>
+                            </View>
+                        );
+                    }}
+                />
+                <BlurView intensity={60} tint="light" style={styles.inputBlur}>
                 <View style={styles.inputRow}>
                     <TextInput
                         style={[
@@ -126,7 +130,8 @@ export default function ChatScreen({ route }: any) {
                         <Text style={styles.sendText}>Send</Text>
                     </TouchableOpacity>
                 </View>
-            </BlurView>
+                </BlurView>
+            </View>
         </KeyboardAvoidingView>
     );
 }
@@ -135,9 +140,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    chatArea: {
+        flex: 1,
+    },
     messageList: {
         paddingTop: 12,
-        paddingBottom: 12,
+        paddingBottom: 80,
         paddingHorizontal: 4,
     },
     messageBubble: {
@@ -161,17 +169,26 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginBottom: 2,
     },
+    adminTag: {
+        fontSize: 11,
+        fontWeight: '700',
+        fontStyle: 'italic',
+    },
     messageText: {
         fontSize: 15,
         lineHeight: 21,
     },
     inputBlur: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
         overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
         padding: 12,
-        paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+        paddingBottom: Platform.OS === 'ios' ? 28 : 16,
         alignItems: 'flex-end',
         gap: 8,
     },
