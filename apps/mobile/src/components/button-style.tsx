@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 type ButtonBasics = {
   title: string;
   actionWhenPressed: () => void;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
   compact?: boolean;
 };
 
@@ -28,6 +28,10 @@ export default function ButtonComponent({
           borderWidth: 1.5,
           borderColor: theme.colors.primary[400],
         };
+      case 'danger':
+        return {
+          backgroundColor: '#D45B5B',
+        };
       default:
         return {
           backgroundColor: theme.colors.primary[400],
@@ -41,6 +45,8 @@ export default function ButtonComponent({
         return { color: theme.colors.secondary.dark };
       case 'outline':
         return { color: theme.colors.primary[400] };
+      case 'danger':
+        return { color: '#FFFFFF' };
       default:
         return { color: theme.colors.text.inverse };
     }

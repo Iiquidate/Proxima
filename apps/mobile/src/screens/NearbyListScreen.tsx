@@ -95,6 +95,11 @@ export default function ChannelListScreen({ navigation, route }: any) {
       return;
     }
 
+    if (!token) {
+      setCheckStatus('User not authenticated. Please log in again.');
+      return;
+    }
+
     const latitude = location.coords.latitude; // store latitude
     const longitude = location.coords.longitude; // store longitude
 
@@ -297,8 +302,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
           </Text>
         )}
         renderItem={({ item, section }) => {
-          const isOutOfRange = section.title === 'All Communities';
-          const canDelete = item.createdBy === userId || role === 'admin';
+          const isOutOfRange = section.title === 'All Communities' && role !== 'admin';
+          const canDelete = item.created_by === userId || role === 'admin';
 
           const renderDeleteAction = () => (
             <TouchableOpacity
@@ -328,6 +333,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
                   channelName: item.name,
                   userId: userId,
                   token: token,
+                  role: role,
                 });
               }}
             >
