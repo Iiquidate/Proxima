@@ -89,7 +89,8 @@ router.post("/login", async (req, res) => {
               [user.id]                                                                                                                                                                 
           );
           existingUser = rows[0] || null;                                                                                                                                               
-      } catch (selectErr) {                                                                                                                                                           
+      } catch (selectErr) {
+          console.error("DB query error:", selectErr);
           return res.status(400).json({ error: "Failed to query user from database" });
         }      
 
