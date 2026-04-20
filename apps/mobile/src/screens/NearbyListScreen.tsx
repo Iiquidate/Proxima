@@ -332,6 +332,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
                   channelName: item.name,
                   userId: userId,
                   token: token,
+                  role: role,
                 });
               }}
             >

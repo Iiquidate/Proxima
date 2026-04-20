@@ -1,14 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { io, Socket } from 'socket.io-client';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
+import ButtonComponent from '../components/button-style';
 
 export default function ChatScreen({ route }: any) {
-    const { channelId, channelName, userId, token } = route.params;
+    const { channelId, channelName, userId, token, role } = route.params;
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
+    const [messageToDeleteId, setMessageToDeleteId] = useState<string | null>(null);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const socketRef = useRef<Socket | null>(null);
     const flatListRef = useRef<FlatList>(null);
     const theme = useTheme();
@@ -57,6 +60,42 @@ export default function ChatScreen({ route }: any) {
         setInput('');
     };
 
+    const handleLongPressMessage = (messageId: string) => {
+        if (role !== 'admin') return;
+        setMessageToDeleteId(messageId);
+        setDeleteModalVisible(true);
+    };
+
+    const handleDeleteMessage = async () => {
+        if (!messageToDeleteId || !token) {
+            setDeleteModalVisible(false);
+            setMessageToDeleteId(null);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${SERVER_URL}/messages/${messageToDeleteId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                console.error('Failed to delete message:', errData);
+                return;
+            }
+
+            setMessages(prev => prev.filter(message => message.id !== messageToDeleteId));
+        } catch (err) {
+            console.error('Failed to delete message:', err);
+        } finally {
+            setDeleteModalVisible(false);
+            setMessageToDeleteId(null);
+        }
+    };
+
     return (
         <KeyboardAvoidingView
             style={[styles.container, { backgroundColor: theme.colors.surface.default }]}
@@ -72,7 +111,7 @@ export default function ChatScreen({ route }: any) {
                     onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
                     renderItem={({ item }) => {
                         const isOwnMessage = item.userId === userId;
-                        return (
+                        const messageBubble = (
                             <View style={[
                                 styles.messageBubble,
                                 isOwnMessage
@@ -96,6 +135,17 @@ export default function ChatScreen({ route }: any) {
                                     {item.content}
                                 </Text>
                             </View>
+                        );
+
+                        return (
+                            <TouchableOpacity
+                                activeOpacity={role === 'admin' ? 0.8 : 1}
+                                onLongPress={() => handleLongPressMessage(item.id)}
+                                delayLongPress={250}
+                                disabled={role !== 'admin'}
+                            >
+                                {messageBubble}
+                            </TouchableOpacity>
                         );
                     }}
                 />
@@ -132,6 +182,40 @@ export default function ChatScreen({ route }: any) {
                 </View>
                 </BlurView>
             </View>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={deleteModalVisible}
+                onRequestClose={() => {
+                    setDeleteModalVisible(false);
+                    setMessageToDeleteId(null);
+                }}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.colors.surface.light }]}>
+                        <Text style={[styles.modalTitle, { color: theme.colors.text.primary }]}>
+                            Delete this message?
+                        </Text>
+                        <View style={styles.modalButtons}>
+                            <ButtonComponent
+                                title="Cancel"
+                                actionWhenPressed={() => {
+                                    setDeleteModalVisible(false);
+                                    setMessageToDeleteId(null);
+                                }}
+                                variant="secondary"
+                                compact
+                            />
+                            <ButtonComponent
+                                title="Delete"
+                                actionWhenPressed={handleDeleteMessage}
+                                variant="danger"
+                                compact
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }
@@ -211,5 +295,26 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
         fontSize: 15,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(53, 47, 41, 0.25)',
+        paddingHorizontal: 24,
+    },
+    modalContent: {
+        borderRadius: 16,
+        padding: 24,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 12,
     },
 });
