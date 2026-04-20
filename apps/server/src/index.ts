@@ -22,8 +22,14 @@ const io = new Server(httpServer, {
 app.use(cors());
 app.use(express.json());
 
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ ok: true });
+app.get('/health', async (_req: Request, res: Response) => {
+  try {
+    const pool = (await import('./db/connection')).default;
+    const result = await pool.query('SELECT NOW()');
+    res.json({ ok: true, db: true, time: result.rows[0].now });
+  } catch (err: any) {
+    res.json({ ok: true, db: false, error: err.message });
+  }
 });
 
 app.use('/auth', authRouter);
