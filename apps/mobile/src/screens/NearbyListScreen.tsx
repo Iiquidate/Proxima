@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated, Image} from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
@@ -15,6 +15,11 @@ interface Channel {
   type: 'official' | 'community';
   created_by: string;
 }
+
+const ChannelImages: Record<string, any> = {
+  'Marston Library': require('../assets/channel-icons/Marston_Library.jpg'),
+  'Reitz Union': require('../assets/channel-icons/Reitz_Union.jpg'),
+};
 
 export default function ChannelListScreen({ navigation, route }: any) {
   const { userId, token, role } = route.params || {};
@@ -272,9 +277,19 @@ export default function ChannelListScreen({ navigation, route }: any) {
                 });
               }}
             >
-              <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200] }]}>
+              <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200], overflow: 'hidden' }]}>
                 <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
-                  {item.type === 'official' ? '#' : '~'}
+                  {item.type === 'official' && ChannelImages[item.name] ? (
+                    <Image
+                      source={ChannelImages[item.name]}
+                      style={{width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
+                      {item.type === 'official' ? '#' : '~'}
+                    </Text>
+                  )}
                 </Text>
               </View>
               <View style={styles.channelDetails}>
