@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated, Image, Switch} from 'react-native';
+import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated, Image, Switch, Linking, Platform} from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
@@ -73,6 +73,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [newChannelName, setNewChannelName] = useState('');
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [selectedChannelInfo, setSelectedChannelInfo] = useState<Channel | null>(null);
   const [newChannelRadius, setNewChannelRadius] = useState('');
   const [newChannelLat, setNewChannelLat] = useState('');
   const [newChannelLng, setNewChannelLng] = useState('');
@@ -87,6 +89,28 @@ export default function ChannelListScreen({ navigation, route }: any) {
     setNewChannelLng(OfficialLocations[text].lng);
     setNewChannelRadius(OfficialLocations[text].radius);
   }
+};
+
+// reads where iPhone or Android and opens correct maps app
+const openInMaps = (channelName: string) => {
+  const locationData = OfficialLocations[channelName];
+  
+  if (!locationData) {
+    Alert.alert("Location unavailable", "No map data for this community.");
+    return;
+  }
+
+  const { lat, lng } = locationData;
+  const scheme = Platform.select({ ios: 'maps://0,0?q=', android: 'geo:0,0?q=' });
+  const latLng = `${lat},${lng}`;
+  const label = channelName;
+
+  const url = Platform.select({
+    ios: `${scheme}${label}@${latLng}`,
+    android: `${scheme}${latLng}(${label})`
+  });
+
+  Linking.openURL(url as string);
 };
 
   // need this in order to have refresh capabilities
@@ -305,6 +329,18 @@ export default function ChannelListScreen({ navigation, route }: any) {
           const isOutOfRange = section.title === 'All Communities' && role !== 'admin';
           const canDelete = item.createdBy === userId || role === 'admin';
 
+          const renderInfoAction = () => (
+          <TouchableOpacity
+            style={styles.infoAction}
+            onPress={() => {
+              setSelectedChannelInfo(item);
+              setInfoModalVisible(true);
+            }}
+          >
+            <Text style={styles.infoActionText}>Info</Text>
+          </TouchableOpacity>
+          );
+
           const renderDeleteAction = () => (
             <TouchableOpacity
               style={styles.deleteAction}
@@ -381,7 +417,9 @@ export default function ChannelListScreen({ navigation, route }: any) {
 
           return (
             <Swipeable
-              renderRightActions={renderDeleteAction}
+              renderLeftActions={renderInfoAction}
+              renderRightActions={canDelete ? renderDeleteAction : undefined}
+              overshootLeft={false}
               overshootRight={false}
             >
               {channelRow}
@@ -429,6 +467,62 @@ export default function ChannelListScreen({ navigation, route }: any) {
             <View style={styles.modalButtons}>
               <ButtonComponent title="Cancel" actionWhenPressed={() => setModalVisible(false)} variant="secondary" compact />
               <ButtonComponent title="Create" actionWhenPressed={() => handleInsertCommunityChannel()} variant="primary" compact />
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={infoModalVisible}
+        onRequestClose={() => setInfoModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.infoCard}>
+            {/* 1. The Header Image */}
+            {selectedChannelInfo && ChannelImages[selectedChannelInfo.name] ? (
+              <Image
+                source={ChannelImages[selectedChannelInfo.name]}
+                style={styles.infoImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.infoImagePlaceholder}>
+                <Text style={styles.infoImagePlaceholderText}>~</Text>
+              </View>
+            )}
+
+            {/* 2. The Data */}
+            <View style={styles.infoCardBody}>
+              <Text style={styles.infoCardTitle}>{selectedChannelInfo?.name}</Text>
+              <Text style={styles.infoCardSubtitle}>
+                {selectedChannelInfo?.type === 'official' ? 'Official Campus Location' : 'Local Community'}
+              </Text>
+              
+              {selectedChannelInfo && OfficialLocations[selectedChannelInfo.name] && (
+                <View style={styles.radiusContainer}>
+                  <MaterialCommunityIcons name="map-marker-radius" size={22} color="#4A90E2" />
+                  <Text style={styles.infoCardRadiusText}>
+                    {OfficialLocations[selectedChannelInfo.name].radius}m Zone Radius
+                  </Text>
+                </View>
+              )}
+
+              {/* 3. The Actions */}
+              <View style={styles.infoCardButtons}>
+                <ButtonComponent 
+                  title="Close" 
+                  actionWhenPressed={() => setInfoModalVisible(false)} 
+                  variant="secondary" 
+                  compact 
+                />
+                <ButtonComponent 
+                  title="Open in Maps" 
+                  actionWhenPressed={() => openInMaps(selectedChannelInfo?.name || '')} 
+                  variant="primary" 
+                  compact 
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -607,4 +701,80 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  infoAction: {
+  backgroundColor: '#4A90E2', // A nice iOS blue
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: 80,
+  marginVertical: 3,
+  borderRadius: 12,
+  marginLeft: 0,
+  marginRight: 10,
+},
+infoActionText: {
+  color: '#FFFFFF',
+  fontWeight: '700',
+  fontSize: 15,
+},
+infoCard: {
+  width: '100%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  overflow: 'hidden',
+  elevation: 5,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+},
+infoImage: {
+  width: '100%',
+  height: 150,
+},
+infoImagePlaceholder: {
+  width: '100%',
+  height: 150,
+  backgroundColor: '#E0E0E0',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+infoImagePlaceholderText: {
+  fontSize: 40,
+  color: '#9E9E9E',
+  fontWeight: 'bold',
+},
+infoCardBody: {
+  padding: 20,
+  alignItems: 'center',
+},
+infoCardTitle: {
+  fontSize: 22,
+  fontWeight: 'bold',
+  textAlign: 'center',
+  color: '#333333',
+  marginBottom: 4,
+},
+infoCardSubtitle: {
+  fontSize: 14,
+  color: '#666666',
+  marginBottom: 12,
+},
+radiusContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 20,
+  gap: 6, // Adds a nice little space between the icon and text
+},
+infoCardRadiusText: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#4A90E2',
+},
+infoCardButtons: {
+  flexDirection: 'row',
+  gap: 12,
+  width: '100%',
+  justifyContent: 'center',
+},
 });
