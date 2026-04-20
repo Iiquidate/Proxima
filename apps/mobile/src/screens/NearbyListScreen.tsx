@@ -17,8 +17,45 @@ interface Channel {
 }
 
 const ChannelImages: Record<string, any> = {
-  'Marston Library': require('../assets/channel-icons/Marston_Library.jpg'),
+  'Ben Hill Griffin Stadium': require('../assets/channel-icons/Ben_Hill_Griffin.jpg'),
+  'Broward Dining': require('../assets/channel-icons/Broward_Dining.jpeg'),
+  'Carleton Auditorium': require('../assets/channel-icons/Carleton.jpg'),
+  'Curtis M. Phillips Center': require('../assets/channel-icons/Curtis_M_Phillips.jpg'),
+  'Flavet Field': require('../assets/channel-icons/Flavet_Field.png'),
+  'Gator Corner': require('../assets/channel-icons/Gator_Corner.jpg'),
+  'Lake Alice': require('../assets/channel-icons/Lake_Alice.jpeg'),
+  'Library West': require('../assets/channel-icons/Lib_West.jpg'),
+  'Little Hall': require('../assets/channel-icons/Little_Hall.jpg'),
+  'Malachowsky Hall': require('../assets/channel-icons/Malachowsky.jpg'),
+  'Marston Science Library': require('../assets/channel-icons/Marston_Library.jpg'),
+  'Matherly Hall': require('../assets/channel-icons/Matherly_Hall.jpg'),
+  'Plaza of the Americas': require('../assets/channel-icons/Plaza.jpg'),
   'Reitz Union': require('../assets/channel-icons/Reitz_Union.jpg'),
+  'Southwest Rec Center': require('../assets/channel-icons/SW_Rec.jpeg'),
+  'Student Rec Center': require('../assets/channel-icons/Student_Rec.png'),
+  'The Hub': require('../assets/channel-icons/The_Hub.jpeg'),
+  'Turlington Hall': require('../assets/channel-icons/Turlington.jpg'),
+};
+
+const OfficialLocations: Record<string, { lat: string; lng: string }> = {
+  'Marston Science Library': { lat: "29.648200894251136", lng: "-82.34340824166277" },
+  'Turlington Hall': { lat: "29.64930135428443", lng: "-82.34399647492198" },
+  'Reitz Union': { lat: "29.64666502357952", lng: "-82.3479590979477" },
+  'Library West': {lat: "29.651510420406968", lng: "-82.34204003701252"},
+  'Plaza of the Americas': {lat: "29.65070636085747", lng: "-82.34280258149158"},
+  'Student Rec Center': {lat: "29.650494991604592", lng: "-82.34670833351034"},
+  'Ben Hill Griffin Stadium': {lat: "29.650018177304965", lng: "-82.34872707336257"},
+  'Malachowsky Hall': {lat: "29.64410710874499", lng: "-82.34725918922416"},
+  'Southwest Rec Center': {lat: "29.638845164498186", lng: "-82.36834360713067"},
+  'Carleton Auditorium': {lat: "29.64925817663425", lng: "-82.34162489179809"},
+  'Little Hall': {lat: "29.64891079595824", lng: "-82.34064958779955"},
+  'Broward Dining': {lat: "29.647154655423552", lng: "-82.34140934822895"},
+  'The Hub': {lat: "29.64824853577638", lng: "-82.3454233222773"},
+  'Gator Corner': {lat: "29.648282969009838", lng: "-82.35006101484998"},
+  'Flavet Field': {lat: "29.646891243700114", lng: "-82.35429342709683"},
+  'Lake Alice': {lat: "29.64339692466425", lng: "-82.36227247711908"},
+  'Matherly Hall': {lat: "29.651686466958722", lng: "-82.34102783162135"},
+  'Curtis M. Phillips Center': {lat: "29.635481784725847", lng: "-82.36935964796055"},
 };
 
 export default function ChannelListScreen({ navigation, route }: any) {
@@ -37,6 +74,15 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const [newChannelLat, setNewChannelLat] = useState('');
   const [newChannelLng, setNewChannelLng] = useState('');
 
+  const handleNameChange = (text: string) => {
+  setNewChannelName(text); // Still update the name normally
+
+  // If the typed name is in our dictionary, auto-fill
+  if (OfficialLocations[text]) {
+    setNewChannelLat(OfficialLocations[text].lat);
+    setNewChannelLng(OfficialLocations[text].lng);
+  }
+};
 
   // need this in order to have refresh capabilities
   const displayChannels = async () => {
@@ -278,19 +324,18 @@ export default function ChannelListScreen({ navigation, route }: any) {
               }}
             >
               <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200], overflow: 'hidden' }]}>
-                <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
-                  {item.type === 'official' && ChannelImages[item.name] ? (
-                    <Image
-                      source={ChannelImages[item.name]}
-                      style={{width: '100%', height: '100%' }}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
-                      {item.type === 'official' ? '#' : '~'}
-                    </Text>
-                  )}
-                </Text>
+                {item.type === 'official' && ChannelImages[item.name] ? (
+                  // Uses image if it's an official channel with a known image
+                  <Image
+                    source={ChannelImages[item.name]}
+                    style={{width: '100%', height: '100%' }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
+                    {item.type === 'official' ? '#' : '~'}
+                  </Text>
+                )}
               </View>
               <View style={styles.channelDetails}>
                 <Text style={[styles.channelName, { color: theme.colors.text.primary }]}>
@@ -333,7 +378,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
             <Text style={[styles.modalTitle, { color: theme.colors.text.primary }]}>
               {role === 'admin' ? 'Create Official Channel' : 'Create Community'}
             </Text>
-            <InputField placeHolderValue="Channel Name" value={newChannelName} onChangeText={setNewChannelName} />
+            <InputField placeHolderValue="Channel Name" value={newChannelName} onChangeText={handleNameChange} />
             <InputField placeHolderValue="Radius in Meters" value={newChannelRadius} onChangeText={setNewChannelRadius} />
             {role === 'admin' && (
               <>
