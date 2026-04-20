@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { CommonActions } from '@react-navigation/native';
 import { useLocation } from '../hooks/useLocation';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
@@ -331,6 +333,28 @@ export default function ChannelListScreen({ navigation, route }: any) {
           </View>
         </View>
       </Modal>
+      <TouchableOpacity
+        style={[styles.logoutButton, { backgroundColor: theme.colors.secondary.dark }]}
+        onPress={() => {
+          Alert.alert('Log Out', 'Are you sure you want to log out?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Log Out',
+              style: 'destructive',
+              onPress: () => {
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Landing' }],
+                  })
+                );
+              },
+            },
+          ]);
+        }}
+      >
+        <MaterialCommunityIcons name="logout" size={22} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -456,5 +480,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginTop: 16,
+  },
+  logoutButton: {
+    position: 'absolute',
+    bottom: 40,
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

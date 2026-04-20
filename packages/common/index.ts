@@ -21,6 +21,7 @@ export interface ChatMessage {
     channelId: string;
     userId: string;
     username?: string;
+    role?: 'member' | 'admin';
     content: string;
     createdAt: string;  // date in the form of a string
 }
