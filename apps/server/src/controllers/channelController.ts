@@ -17,6 +17,19 @@ export const getOfficialChannels = async (req: Request, res: Response) => {
 }
 
 
+export const getAllChannels = async (req: Request, res: Response) => {
+    try {
+        const channels = await ChannelModel.getAllChannels();
+        return res.json({
+            channels: channels || [],
+            count: (channels?.length || 0)
+        });
+    } catch (error) {
+        console.error("Error in getAllChannels:", error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 export const getNearbyChannels = async (req: Request, res: Response) => {
     try {
         const latitude = req.query.lat;
@@ -26,12 +39,11 @@ export const getNearbyChannels = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid latitude and longitude' });
         }
 
-        const community = await ChannelModel.getNearbyCommunityChannels(parseFloat(latitude as string), parseFloat(longitude as string));
+        const channels = await ChannelModel.getNearbyChannels(parseFloat(latitude as string), parseFloat(longitude as string));
 
-        // Return result as a json object containing the channels in proximity and the total count of them, will be helpful for the frontend
         return res.json({
-            communityChannels: community || [],
-            count: (community?.length || 0)
+            channels: channels || [],
+            count: (channels?.length || 0)
         });
     } catch (error) {
         console.error("Error in getNearbyChannels:", error);

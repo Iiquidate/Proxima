@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, ScrollView, Keyboard } from 'react-native';
 import ButtonComponent from '../components/button-style';
 import InputField from '../components/input-fields';
 import { SERVER_URL } from '../config';
@@ -22,14 +22,12 @@ export default function SignUpScreen({ navigation }: any) {
     const data = await response.json();
     console.log(data);
     if (response.ok) {
+      Keyboard.dismiss();
       const userRole = data.user?.role || 'member';
       navigation.navigate('MainApp', {
-        screen: 'NearbyList',
-        params: {
-          userId: data.user.id,
-          token: data.session?.access_token,
-          role: userRole,
-        },
+        userId: data.user.id,
+        token: data.session?.access_token,
+        role: userRole,
       });
     } else {
       setErrorMsg(data.error || 'Signup failed');

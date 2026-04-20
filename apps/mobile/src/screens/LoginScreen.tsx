@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, KeyboardAvoidingView, Platform, ScrollView, Keyboard } from 'react-native';
 import ButtonComponent from '../components/button-style';
 import InputField from '../components/input-fields';
 import { SERVER_URL } from '../config';
@@ -21,15 +21,13 @@ export default function LoginFormScreen({ navigation }: any) {
     const data = await response.json();
     console.log(data);
     if (response.ok) {
+      Keyboard.dismiss();
       const userRole = data.user?.role || 'member';
       console.log('Login data:', { userId: data.user.id, token: data.accessToken, role: userRole });
       navigation.navigate('MainApp', {
-        screen: 'NearbyList',
-        params: {
-          userId: data.user.id,
-          token: data.accessToken,
-          role: userRole,
-        },
+        userId: data.user.id,
+        token: data.accessToken,
+        role: userRole,
       });
     } else {
       setErrorMsg(data.error || 'Login failed');

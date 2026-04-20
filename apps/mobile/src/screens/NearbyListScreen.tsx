@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useLocation } from '../hooks/useLocation';
 import { SERVER_URL } from '../config';
@@ -19,7 +19,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const theme = useTheme();
   console.log('NearbyList params:', { userId, token });
   const { location, errorMsg } = useLocation();
-  const [channels, setChannels] = useState<{ official: Channel[]; community: Channel[] }>({ official: [], community: [] });
+  const [channels, setChannels] = useState<{ official: Channel[]; nearby: Channel[]; other: Channel[] }>({ official: [], nearby: [], other: [] });
 
   let text = 'Waiting to obtain location...';
   const [checkStatus, setCheckStatus] = useState(text);
@@ -43,23 +43,28 @@ export default function ChannelListScreen({ navigation, route }: any) {
     console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
 
     try{
-      const communityResponse = await fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`);
-      const communityData = await communityResponse.json();
-      // The prev state was researched through Google Gemini
-      setChannels(prev => ({
-        ...prev,
-        community: communityData.communityChannels || []
-      }));
+      const [nearbyResponse, allResponse] = await Promise.all([
+        fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`),
+        fetch(`${SERVER_URL}/channels/all`),
+      ]);
 
-      const officialResponse = await fetch(`${SERVER_URL}/channels/official`);
-      const officialData = await officialResponse.json();
-      // The prev state was researched through Google Gemini
-      setChannels(prev => ({
-        ...prev,
-        official: officialData.officialChannels || []
-      }));
+      const nearbyData = await nearbyResponse.json();
+      const allData = await allResponse.json();
 
-      if (communityData.count === 0 && officialData.count === 0) {
+      const nearbyChannels: Channel[] = nearbyData.channels || [];
+      const allChannels: Channel[] = allData.channels || [];
+
+      // Filter out nearby channels from the full list to get "other" channels
+      const nearbyIds = new Set(nearbyChannels.map(c => c.id));
+      const otherChannels = allChannels.filter(c => !nearbyIds.has(c.id));
+
+      setChannels({
+        official: [],
+        nearby: nearbyChannels,
+        other: otherChannels,
+      });
+
+      if (nearbyChannels.length === 0 && otherChannels.length === 0) {
         setCheckStatus('Finding channels in your area...');
       }
       else {
@@ -197,13 +202,16 @@ export default function ChannelListScreen({ navigation, route }: any) {
     }
   }, [location, errorMsg]);
 
-  const allChannels = [...channels.official, ...channels.community];
+  const sections = [
+    ...(channels.nearby.length > 0 ? [{ title: 'Nearby Communities', data: channels.nearby }] : []),
+    ...(channels.other.length > 0 ? [{ title: 'All Communities', data: channels.other }] : []),
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
       <View style={styles.headerRow}>
         <Text style={[styles.header, { color: theme.colors.text.primary }]}>
-          Nearby Communities
+          Communities
         </Text>
         <TouchableOpacity
           style={[styles.addButton, { backgroundColor: theme.colors.secondary.dark }]}
@@ -217,11 +225,18 @@ export default function ChannelListScreen({ navigation, route }: any) {
           {checkStatus}
         </Text>
       ) : null}
-      <FlatList
-        data={allChannels}
+      <SectionList
+        sections={sections}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
-        renderItem={({ item }) => {
+        style={{ flex: 1 }}
+        contentContainerStyle={[styles.list, { flexGrow: 1 }]}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={[styles.sectionHeader, { color: theme.colors.text.secondary }]}>
+            {title}
+          </Text>
+        )}
+        renderItem={({ item, section }) => {
+          const isOutOfRange = section.title === 'All Communities';
           const canDelete = item.created_by === userId || role === 'admin';
 
           const renderDeleteAction = () => (
@@ -240,14 +255,20 @@ export default function ChannelListScreen({ navigation, route }: any) {
 
           const channelRow = (
             <TouchableOpacity
-              style={[styles.channelRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}
-              activeOpacity={0.6}
-              onPress={() => navigation.navigate('ChatScreen', {
-                channelId: item.id,
-                channelName: item.name,
-                userId: userId,
-                token: token,
-              })}
+              style={[styles.channelRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }, isOutOfRange && styles.channelRowDisabled]}
+              activeOpacity={isOutOfRange ? 0.8 : 0.6}
+              onPress={() => {
+                if (isOutOfRange) {
+                  Alert.alert('Out of Range', 'This community is out of range. Move closer to join.');
+                  return;
+                }
+                navigation.navigate('ChatScreen', {
+                  channelId: item.id,
+                  channelName: item.name,
+                  userId: userId,
+                  token: token,
+                });
+              }}
             >
               <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200] }]}>
                 <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
@@ -258,8 +279,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
                 <Text style={[styles.channelName, { color: theme.colors.text.primary }]}>
                   {item.name}
                 </Text>
-                <Text style={[styles.channelType, { color: theme.colors.text.tertiary }]}>
-                  {item.type}
+                <Text style={[styles.channelType, { color: theme.colors.text.secondary }]}>
+                  {item.type === 'official' ? 'Official' : 'Local'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -356,6 +377,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
+  sectionHeader: {
+    fontSize: 14,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    paddingTop: 18,
+    paddingBottom: 8,
+    paddingHorizontal: 4,
+  },
   channelRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -364,6 +394,9 @@ const styles = StyleSheet.create({
     marginVertical: 3,
     borderRadius: 12,
     borderWidth: 1,
+  },
+  channelRowDisabled: {
+    opacity: 0.5,
   },
   channelIcon: {
     width: 40,

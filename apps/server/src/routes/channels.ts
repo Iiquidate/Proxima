@@ -4,6 +4,7 @@ import { requireAuth } from '../middleware/requireAuth'; // need this to allow p
 
 const router = Router();
 router.get('/official', ChannelController.getOfficialChannels);
+router.get('/all', ChannelController.getAllChannels);
 router.get('/nearby', ChannelController.getNearbyChannels);
 router.get('/:id', ChannelController.getChannelById);
 router.post('/', requireAuth, ChannelController.createChannel);

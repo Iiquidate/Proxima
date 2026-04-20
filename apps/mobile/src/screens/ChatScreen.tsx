@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { io, Socket } from 'socket.io-client';
 import { SERVER_URL } from '../config';
@@ -110,8 +110,9 @@ export default function ChatScreen({ route }: any) {
                         onChangeText={setInput}
                         placeholder="Type a message..."
                         placeholderTextColor={theme.colors.text.tertiary}
-                        onSubmitEditing={sendMessage}
-                        returnKeyType="send"
+                        multiline={true}
+                        blurOnSubmit={false}
+                        returnKeyType="default"
                     />
                     <TouchableOpacity
                         style={[
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     },
     messageList: {
         paddingTop: 12,
-        paddingBottom: Platform.OS === 'ios' ? 90 : 70,
+        paddingBottom: 12,
         paddingHorizontal: 4,
     },
     messageBubble: {
@@ -165,10 +166,6 @@ const styles = StyleSheet.create({
         lineHeight: 21,
     },
     inputBlur: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         overflow: 'hidden',
     },
     inputRow: {

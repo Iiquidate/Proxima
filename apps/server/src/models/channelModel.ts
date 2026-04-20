@@ -28,14 +28,24 @@ export async function getOfficialChannels(): Promise<Channel[]> {
     return result.rows as Channel[];
 }
 
-export async function getNearbyCommunityChannels(lat: number, lng: number): Promise<Channel[]> {
+export async function getAllChannels(): Promise<Channel[]> {
+    const result = await pool.query(
+        `SELECT id, name, radius_meters, created_by, created_at, type,
+        ST_X(location::geometry) as lng,
+        ST_Y(location::geometry) as lat
+        FROM channels`
+    );
+
+    return result.rows as Channel[];
+}
+
+export async function getNearbyChannels(lat: number, lng: number): Promise<Channel[]> {
     const result = await pool.query(
         `SELECT id, name, radius_meters, created_by, created_at, type,
         ST_X(location::geometry) as lng,
         ST_Y(location::geometry) as lat
         FROM channels
-        WHERE type = 'community'
-        AND ST_DWithin(
+        WHERE ST_DWithin(
         location,
         ST_MakePoint($1, $2)::geography,
         radius_meters
