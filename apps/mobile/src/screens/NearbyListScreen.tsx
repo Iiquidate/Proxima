@@ -27,6 +27,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const [modalVisible, setModalVisible] = useState(false);
   const [newChannelName, setNewChannelName] = useState('');
   const [newChannelRadius, setNewChannelRadius] = useState('');
+  const [newChannelLat, setNewChannelLat] = useState('');
+  const [newChannelLng, setNewChannelLng] = useState('');
 
 
   // need this in order to have refresh capabilities
@@ -91,6 +93,14 @@ export default function ChannelListScreen({ navigation, route }: any) {
       return;
     }
 
+    // Admin must provide lat/lng manually for official channels
+    if (role === 'admin') {
+      if (!newChannelLat.trim() || !newChannelLng.trim() || isNaN(Number(newChannelLat)) || isNaN(Number(newChannelLng))) {
+        Alert.alert('Please enter valid latitude and longitude.');
+        return;
+      }
+    }
+
     try {
       // Lines 91-105 were researched through Google Gemini in order to get the token in the frontend
       if (!token) {
@@ -98,26 +108,30 @@ export default function ChannelListScreen({ navigation, route }: any) {
         return;
       }
 
-      if (!location) {
+      if (!location && role !== 'admin') {
         Alert.alert('Error in obtaining location.');
         return;
       }
 
-      const response = await fetch(`${SERVER_URL}/channels`, {                                                                                                   
-            method: 'POST',                                                                                                                                                      
-            headers: { 
+      // Admin uses manually entered coordinates, members use their current location
+      const channelLat = role === 'admin' ? Number(newChannelLat) : location!.coords.latitude;
+      const channelLng = role === 'admin' ? Number(newChannelLng) : location!.coords.longitude;
+
+      const response = await fetch(`${SERVER_URL}/channels`, {
+            method: 'POST',
+            headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}` // Will utilize requireAuth
              },
             body: JSON.stringify({
-              name: newChannelName, 
-              lat: location.coords.latitude, 
-              lng: location.coords.longitude,
+              name: newChannelName,
+              lat: channelLat,
+              lng: channelLng,
               radiusMeters: Number(newChannelRadius),
               type: 'community'
-            })                                                                                                                            
+            })
       })
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error creating channel:', errorData);
@@ -129,6 +143,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
         setModalVisible(false);
         setNewChannelName('');
         setNewChannelRadius('');
+        setNewChannelLat('');
+        setNewChannelLng('');
         await displayChannels(); // Refresh channels to get the most updated list
       }
     }
@@ -277,10 +293,16 @@ export default function ChannelListScreen({ navigation, route }: any) {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.colors.surface.light }]}>
             <Text style={[styles.modalTitle, { color: theme.colors.text.primary }]}>
-              Create Community
+              {role === 'admin' ? 'Create Official Channel' : 'Create Community'}
             </Text>
             <InputField placeHolderValue="Channel Name" value={newChannelName} onChangeText={setNewChannelName} />
             <InputField placeHolderValue="Radius in Meters" value={newChannelRadius} onChangeText={setNewChannelRadius} />
+            {role === 'admin' && (
+              <>
+                <InputField placeHolderValue="Latitude" value={newChannelLat} onChangeText={setNewChannelLat} />
+                <InputField placeHolderValue="Longitude" value={newChannelLng} onChangeText={setNewChannelLng} />
+              </>
+            )}
             <View style={styles.modalButtons}>
               <ButtonComponent title="Cancel" actionWhenPressed={() => setModalVisible(false)} variant="secondary" compact />
               <ButtonComponent title="Create" actionWhenPressed={() => handleInsertCommunityChannel()} variant="primary" compact />

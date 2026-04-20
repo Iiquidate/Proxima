@@ -67,7 +67,9 @@ export const createChannel = async (req: AuthenticatedRequest, res: Response) =>
         const lng = req.body.lng;
         const radiusMeters = req.body.radiusMeters;
         const createdBy = req.AuthUser?.id;
-        const type = req.body.type;
+        const userRole = req.AuthUser?.role;
+        // Admins create official channels, members create community channels
+        const type = userRole === 'admin' ? 'official' : 'community';
 
         if (!lat || !lng || isNaN(Number(lat)) || isNaN(Number(lng))) {
             return res.status(400).json({ error: 'Invalid latitude and longitude' });
