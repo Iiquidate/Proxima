@@ -1,9 +1,9 @@
-import React, {useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal, Alert, Touchable} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { useLocation } from '../hooks/useLocation';
-import ButtonComponent from '../components/button-style';
-import InputField from '../components/input-fields';
+import { TouchableOpacity } from 'react-native';
 import { SERVER_URL } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 interface Channel {
   id: string;
@@ -13,11 +13,10 @@ interface Channel {
 }
 
 export default function ChannelListScreen({ navigation, route }: any) {
-  const { userId, token, role} = route.params || {};
-  console.log('NearbyList params:', { userId, token, role});
-
-  const {location, errorMsg} = useLocation();
-  // The line below was researched through Google Gemini
+  const { userId, token } = route.params || {};
+  const theme = useTheme();
+  console.log('NearbyList params:', { userId, token });
+  const { location, errorMsg } = useLocation();
   const [channels, setChannels] = useState<{ official: Channel[]; community: Channel[] }>({ official: [], community: [] });
 
   let text = 'Waiting to obtain location...';
@@ -37,10 +36,9 @@ export default function ChannelListScreen({ navigation, route }: any) {
     const latitude = location.coords.latitude; // store latitude
     const longitude = location.coords.longitude; // store longitude
 
-    //console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
-        
+    console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
+
     try{
-      // Use your IP address for the links that say YOUR_IP
       const communityResponse = await fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`);
       const communityData = await communityResponse.json();
       // The prev state was researched through Google Gemini
@@ -181,33 +179,54 @@ export default function ChannelListScreen({ navigation, route }: any) {
     }
   }, [location, errorMsg]);
 
+  const allChannels = [...channels.official, ...channels.community];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{checkStatus}</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
+      <Text style={[styles.header, { color: theme.colors.text.primary }]}>
+        Nearby Communities
+      </Text>
+      {checkStatus ? (
+        <Text style={[styles.statusText, { color: theme.colors.text.secondary }]}>
+          {checkStatus}
+        </Text>
+      ) : null}
       <FlatList
-        data={[...channels.official, ...channels.community]}
+        data={allChannels}
         keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            {/*The first TouchableOpacity is a placeholder for the one that connects to invidual chat screens.*/}
-            <TouchableOpacity 
-              style={styles.itemContainer}
-              onPress={() => {alert(`You clicked on: ${item.name}`);}}
-            >
-              <Text style = {styles.text}>{item.name}</Text>
-            </TouchableOpacity>
-            
-            {/*Line 196 was researched through Google Gemini in order to only show the delete button to the user that created the channel*/}
-            {(item.created_by === userId || role === 'admin') && (
-              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteChannel(item.id)}>
-                <Text style={styles.deleteButtonText}>-</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <TouchableOpacity
+            style={[styles.channelRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}
+            activeOpacity={0.6}
+            onPress={() => navigation.navigate('ChatScreen', {
+              channelId: item.id,
+              channelName: item.name,
+              userId: userId,
+              token: token,
+            })}
+          >
+            <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200] }]}>
+              <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
+                {item.type === 'official' ? '#' : '~'}
+              </Text>
+            </View>
+            <View style={styles.channelDetails}>
+              <Text style={[styles.channelName, { color: theme.colors.text.primary }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.channelType, { color: theme.colors.text.tertiary }]}>
+                {item.type}
+              </Text>
+            </View>
+          </TouchableOpacity>
         )}
-        // Researched from RefreshControl documentation at https://reactnative.dev/docs/refreshcontrol
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.secondary.dark}
+          />
         }
       />
       {/*The modal was researched through React documentation at https://reactnative.dev/docs/modal*/}
@@ -238,77 +257,61 @@ export default function ChannelListScreen({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingTop: 100},
-  text: { fontSize: 20, fontWeight: 'bold', textAlign: 'center'},
-  item: { padding: 15, borderBottomWidth: 1, borderColor: '#60a9da', width: '100%', flexDirection: 'row', alignItems: 'center' },
-  itemContainer: { flex: 1},
-  fab: {position: 'absolute', 
-    right: 25, 
-    bottom: 30, 
-    zIndex: 10, 
-    backgroundColor: '#5895d3', 
-    width: 65, 
-    height: 65, 
-    borderRadius: 32.5, 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    //This was taken from Google Gemini in order to shadow correctly for Android and iOS
-    elevation: 8, // For Android
-    shadowColor: '#000', // For iOS
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+  container: {
+    flex: 1,
+    paddingTop: 60,
   },
-  fabText: { fontSize: 30, 
-    color: 'white', 
-    fontWeight: 'bold', 
-    marginTop: -4},
-  // The modal was researched through React documentation at https://reactnative.dev/docs/modal
-  modalOverview: { 
-    flex: 1, 
-    justifyContent: 'flex-end', // did this to position model at bottom of screen in order to make it convinient for users to type while walking 
-    backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-  modal:{
-    height: 300,
-    margin: 25, 
-    backgroundColor: 'white', 
-    borderRadius: 10, 
-    padding: 35, 
-    alignItems: 'center', 
-    shadowColor: '#000', 
-    shadowOffset: { width: 2, height: 5 }, 
-    shadowOpacity: 0.25, 
-    shadowRadius: 6, 
-    elevation: 4},
-  modalText: { marginBottom: 15, 
-    textAlign: 'center', 
-    fontSize: 18, 
-    fontWeight: 'bold'},
-  buttonDesign: {
+  header: {
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  statusText: {
+    fontSize: 15,
+    fontWeight: '400',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  list: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  channelRow: {
     flexDirection: 'row',
-    gap: 20,
-    marginTop: 15,
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  deleteButton: {
-    backgroundColor: '#ff4d4d',
-    padding: 10,
-    width: 30,
-    height: 30,
+  channelIcon: {
+    width: 40,
+    height: 40,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-
-    //This was taken from Google Gemini in order to shadow correctly for Android and iOS
-    elevation: 8, // For Android
-    shadowColor: '#000', // For iOS
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    marginRight: 14,
   },
-  deleteButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 15,
-    marginTop: -5,
+  channelIconText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  channelDetails: {
+    flex: 1,
+  },
+  channelName: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  channelType: {
+    fontSize: 12,
+    fontWeight: '400',
+    textTransform: 'capitalize',
+    marginTop: 2,
   },
 });

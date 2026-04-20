@@ -1,33 +1,50 @@
-// This is for input fields, such as username and pssword for login or sign up
-// Code was influenced by React Native source at https://reactnative.dev/docs/textinput
-
 import React from 'react';
-import {StyleSheet, TextInput} from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 type InputFieldBasics = {
-    placeHolderValue: string;
-    value: string;
-    onChangeText: (text: string) => void;
-}
-
-export default function InputField({placeHolderValue, value, onChangeText}: InputFieldBasics) {
-
-    return(
-        <TextInput
-            style={styles.input}
-            onChangeText={onChangeText}
-            value={value}
-            placeholder={placeHolderValue}
-        />
-    );
+  placeHolderValue: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  secureTextEntry?: boolean;
 };
+
+export default function InputField({
+  placeHolderValue,
+  value,
+  onChangeText,
+  secureTextEntry,
+}: InputFieldBasics) {
+  const theme = useTheme();
+
+  return (
+    <TextInput
+      style={[
+        styles.input,
+        {
+          borderColor: theme.colors.border.default,
+          color: theme.colors.text.primary,
+          backgroundColor: theme.colors.surface.light,
+        },
+      ]}
+      onChangeText={onChangeText}
+      value={value}
+      placeholder={placeHolderValue}
+      placeholderTextColor={theme.colors.text.tertiary}
+      secureTextEntry={secureTextEntry}
+      autoCapitalize="none"
+    />
+  );
+}
 
 const styles = StyleSheet.create({
   input: {
-    height: 40,
-    width: '85%',
-    margin: 12,
+    height: 52,
+    width: '100%',
+    marginVertical: 6,
     borderWidth: 1,
-    padding: 10,
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    fontSize: 16,
   },
 });

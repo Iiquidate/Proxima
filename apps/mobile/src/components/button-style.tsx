@@ -1,35 +1,72 @@
-// This create the style for all buttons in general
-import { StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
-// Establish title as string an actionWhenPressed to do nothing
 type ButtonBasics = {
   title: string;
   actionWhenPressed: () => void;
+  variant?: 'primary' | 'secondary' | 'outline';
 };
 
-// This implementation was influenced from React Native source at https://reactnative.dev/docs/handling-touches
-export default function ButtonComponent({title, actionWhenPressed}: ButtonBasics) {
-    return(
-        <TouchableOpacity onPress={actionWhenPressed} activeOpacity={0.7}>
-            <View style={styles.button}>
-                <Text style={styles.buttonText}>{title}</Text>
-            </View>
-        </TouchableOpacity>
-    );
-};
+export default function ButtonComponent({
+  title,
+  actionWhenPressed,
+  variant = 'primary'
+}: ButtonBasics) {
+  const theme = useTheme();
+
+  const getButtonStyle = () => {
+    switch (variant) {
+      case 'secondary':
+        return {
+          backgroundColor: theme.colors.secondary.light,
+        };
+      case 'outline':
+        return {
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderColor: theme.colors.primary[400],
+        };
+      default:
+        return {
+          backgroundColor: theme.colors.primary[400],
+        };
+    }
+  };
+
+  const getTextStyle = () => {
+    switch (variant) {
+      case 'secondary':
+        return { color: theme.colors.secondary.dark };
+      case 'outline':
+        return { color: theme.colors.primary[400] };
+      default:
+        return { color: theme.colors.text.inverse };
+    }
+  };
+
+  return (
+    <TouchableOpacity onPress={actionWhenPressed} activeOpacity={0.7}>
+      <View style={[styles.button, getButtonStyle()]}>
+        <Text style={[styles.buttonText, getTextStyle()]}>
+          {title}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
 
 const styles = StyleSheet.create({
-  // Styles came from React Native source at https://reactnative.dev/docs/view-style-props
   button: {
-    marginBottom: 30,
-    width: 100,
+    paddingVertical: 15,
+    paddingHorizontal: 32,
     alignItems: 'center',
-    backgroundColor: '#5895d3',
-    borderRadius: 30,
+    borderRadius: 12,
+    minWidth: 200,
   },
   buttonText: {
     textAlign: 'center',
-    padding: 20,
-    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
 });
