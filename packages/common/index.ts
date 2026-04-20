@@ -14,6 +14,7 @@ export interface Channel {
     radiusMeters: number;
     createdBy: string;  // member or admin ID
     type: 'official' | 'community'; // admin defined "official" locations, or user defined channels
+    visibility: 'public' | 'private'; // public channels visible to all, private only to members
 }
 
 export interface ChatMessage {

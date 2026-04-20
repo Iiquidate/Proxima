@@ -1,5 +1,6 @@
 // This code was inspired by https://reactnavigation.org/ and Gemini
 import React from 'react';
+import { TouchableOpacity, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors } from '../theme';
 
@@ -9,6 +10,8 @@ import LoginScreen from '../screens/LoginScreen';
 import NearbyListScreen from '../screens/NearbyListScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ChatScreen from '../screens/ChatScreen';
+import ManageMembersScreen from '../screens/ManageMembersScreen';
+import ChannelMembersScreen from '../screens/ChannelMembersScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -51,9 +54,40 @@ export default function AppNavigator() {
       <Stack.Screen
         name="ChatScreen"
         component={ChatScreen}
+        options={({ route, navigation }: any) => ({
+          headerShown: true,
+          headerTitle: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ChannelMembers', {
+                channelId: route.params?.channelId,
+                channelName: route.params?.channelName,
+                token: route.params?.token,
+              })}
+              activeOpacity={0.6}
+            >
+              <Text style={{ color: colors.text.primary, fontWeight: '600', fontSize: 17 }}>
+                {route.params?.channelName || 'Chat'}
+              </Text>
+            </TouchableOpacity>
+          ),
+        })}
+      />
+
+      <Stack.Screen
+        name="ManageMembers"
+        component={ManageMembersScreen}
         options={({ route }: any) => ({
           headerShown: true,
-          title: route.params?.channelName || 'Chat',
+          title: `Members — ${route.params?.channelName || 'Channel'}`,
+        })}
+      />
+
+      <Stack.Screen
+        name="ChannelMembers"
+        component={ChannelMembersScreen}
+        options={({ route }: any) => ({
+          headerShown: true,
+          title: `${route.params?.channelName || 'Channel'} — Participants`,
         })}
       />
 

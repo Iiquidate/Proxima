@@ -5,7 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 
-export default function ChatScreen({ route }: any) {
+export default function ChatScreen({ route, navigation }: any) {
     const { channelId, channelName, userId, token } = route.params;
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated, Image} from 'react-native';
+import { View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity, Modal, Alert, Animated, Image, Switch} from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
@@ -13,7 +13,8 @@ interface Channel {
   id: string;
   name: string;
   type: 'official' | 'community';
-  created_by: string;
+  visibility: 'public' | 'private';
+  createdBy: string;
 }
 
 const ChannelImages: Record<string, any> = {
@@ -39,14 +40,14 @@ const ChannelImages: Record<string, any> = {
 };
 
 const OfficialLocations: Record<string, { lat: string; lng: string; radius: string }> = {
-  'Marston Science Library': { lat: "29.648200894251136", lng: "-82.34340824166277", radius: "50" },
+  'Marston Science Library': { lat: "29.648200894251136", lng: "-82.34340824166277", radius: "75" },
   'Turlington Hall': { lat: "29.64930135428443", lng: "-82.34399647492198", radius: "50" },
   'Reitz Union': { lat: "29.64666502357952", lng: "-82.3479590979477", radius: "80" },
-  'Library West': {lat: "29.651510420406968", lng: "-82.34204003701252", radius: "50"},
+  'Library West': {lat: "29.651510420406968", lng: "-82.34204003701252", radius: "75"},
   'Plaza of the Americas': {lat: "29.65070636085747", lng: "-82.34280258149158", radius: "80"},
   'Student Rec Center': {lat: "29.650494991604592", lng: "-82.34670833351034", radius: "60"},
   'Ben Hill Griffin Stadium': {lat: "29.650018177304965", lng: "-82.34872707336257", radius: "150"},
-  'Malachowsky Hall': {lat: "29.64410710874499", lng: "-82.34725918922416", radius: "60"},
+  'Malachowsky Hall': {lat: "29.64410710874499", lng: "-82.34725918922416", radius: "75"},
   'Southwest Rec Center': {lat: "29.638845164498186", lng: "-82.36834360713067", radius: "100"},
   'Carleton Auditorium': {lat: "29.64925817663425", lng: "-82.34162489179809", radius: "40"},
   'Little Hall': {lat: "29.64891079595824", lng: "-82.34064958779955", radius: "40"},
@@ -57,7 +58,7 @@ const OfficialLocations: Record<string, { lat: string; lng: string; radius: stri
   'Lake Alice': {lat: "29.64339692466425", lng: "-82.36227247711908", radius: "200"},
   'Matherly Hall': {lat: "29.651686466958722", lng: "-82.34102783162135", radius: "40"},
   'Curtis M. Phillips Center': {lat: "29.635481784725847", lng: "-82.36935964796055", radius: "80"},
-  'The Swamp': {lat: "29.648064621555974", lng: "-82.35335097738442", radius: "1500"},
+  'The Swamp': {lat: "29.648064621555974", lng: "-82.35335097738442", radius: "15000"},
 };
 
 export default function ChannelListScreen({ navigation, route }: any) {
@@ -75,6 +76,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const [newChannelRadius, setNewChannelRadius] = useState('');
   const [newChannelLat, setNewChannelLat] = useState('');
   const [newChannelLng, setNewChannelLng] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const handleNameChange = (text: string) => {
   setNewChannelName(text); // Still update the name normally
@@ -99,9 +101,10 @@ export default function ChannelListScreen({ navigation, route }: any) {
     console.log(`[Fetching Channels] Lat: ${latitude}, Lng: ${longitude}`);
 
     try{
+      const authHeaders = { Authorization: `Bearer ${token}` };
       const [nearbyResponse, allResponse] = await Promise.all([
-        fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`),
-        fetch(`${SERVER_URL}/channels/all`),
+        fetch(`${SERVER_URL}/channels/nearby?lat=${latitude}&lng=${longitude}`, { headers: authHeaders }),
+        fetch(`${SERVER_URL}/channels/all`, { headers: authHeaders }),
       ]);
 
       const nearbyData = await nearbyResponse.json();
@@ -189,7 +192,8 @@ export default function ChannelListScreen({ navigation, route }: any) {
               lat: channelLat,
               lng: channelLng,
               radiusMeters: Number(newChannelRadius),
-              type: 'community'
+              type: 'community',
+              visibility: isPrivate ? 'private' : 'public'
             })
       })
 
@@ -206,6 +210,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
         setNewChannelRadius('');
         setNewChannelLat('');
         setNewChannelLng('');
+        setIsPrivate(false);
         await displayChannels(); // Refresh channels to get the most updated list
       }
     }
@@ -293,7 +298,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
         )}
         renderItem={({ item, section }) => {
           const isOutOfRange = section.title === 'All Communities';
-          const canDelete = item.created_by === userId || role === 'admin';
+          const canDelete = item.createdBy === userId || role === 'admin';
 
           const renderDeleteAction = () => (
             <TouchableOpacity
@@ -345,9 +350,24 @@ export default function ChannelListScreen({ navigation, route }: any) {
                   {item.name}
                 </Text>
                 <Text style={[styles.channelType, { color: theme.colors.text.secondary }]}>
-                  {item.type === 'official' ? 'Official' : 'Local'}
+                  {item.type === 'official' ? 'Official' : item.visibility === 'private' ? 'Private' : 'Local'}
                 </Text>
               </View>
+              {item.visibility === 'private' && item.createdBy === userId && (
+                <TouchableOpacity
+                  style={styles.membersButton}
+                  onPress={() => {
+                    navigation.navigate('ManageMembers', {
+                      channelId: item.id,
+                      channelName: item.name,
+                      token: token,
+                    });
+                  }}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <MaterialCommunityIcons name="account-group" size={20} color={theme.colors.secondary.dark} />
+                </TouchableOpacity>
+              )}
             </TouchableOpacity>
           );
 
@@ -389,6 +409,17 @@ export default function ChannelListScreen({ navigation, route }: any) {
                 <InputField placeHolderValue="Longitude" value={newChannelLng} onChangeText={setNewChannelLng} />
               </>
             )}
+            <View style={styles.visibilityRow}>
+              <Text style={[styles.visibilityLabel, { color: theme.colors.text.primary }]}>
+                Private Channel
+              </Text>
+              <Switch
+                value={isPrivate}
+                onValueChange={setIsPrivate}
+                trackColor={{ false: theme.colors.border.default, true: theme.colors.secondary.dark }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
             <View style={styles.modalButtons}>
               <ButtonComponent title="Cancel" actionWhenPressed={() => setModalVisible(false)} variant="secondary" compact />
               <ButtonComponent title="Create" actionWhenPressed={() => handleInsertCommunityChannel()} variant="primary" compact />
@@ -538,6 +569,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 16,
+  },
+  visibilityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 4,
+    marginTop: 12,
+  },
+  visibilityLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  membersButton: {
+    padding: 6,
+    marginLeft: 8,
   },
   modalButtons: {
     flexDirection: 'row',
