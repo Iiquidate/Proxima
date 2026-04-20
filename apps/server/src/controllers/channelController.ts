@@ -17,9 +17,11 @@ export const getOfficialChannels = async (req: Request, res: Response) => {
 }
 
 
-export const getAllChannels = async (req: Request, res: Response) => {
+export const getAllChannels = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const channels = await ChannelModel.getAllChannels();
+        const userId = req.AuthUser?.id;
+        const userRole = req.AuthUser?.role;
+        const channels = await ChannelModel.getAllChannels(userId, userRole);
         return res.json({
             channels: channels || [],
             count: (channels?.length || 0)
@@ -34,15 +36,14 @@ export const getNearbyChannels = async (req: AuthenticatedRequest, res: Response
     try {
         const latitude = req.query.lat;
         const longitude = req.query.lng;
+        const userId = req.AuthUser?.id;
 
         if (!latitude || !longitude || isNaN(Number(latitude)) || isNaN(Number(longitude))) {
             return res.status(400).json({ error: 'Invalid latitude and longitude' });
         }
 
-        const isAdmin = req.AuthUser?.role === 'admin';
-        const channels = isAdmin
-            ? await ChannelModel.getAllChannels()
-            : await ChannelModel.getNearbyChannels(parseFloat(latitude as string), parseFloat(longitude as string));
+        const userRole = req.AuthUser?.role;
+        const channels = await ChannelModel.getNearbyChannels(parseFloat(latitude as string), parseFloat(longitude as string), userId, userRole);
 
         return res.json({
             channels: channels || [],
@@ -85,6 +86,7 @@ export const createChannel = async (req: AuthenticatedRequest, res: Response) =>
         const userRole = req.AuthUser?.role;
         // Admins create official channels, members create community channels
         const type = userRole === 'admin' ? 'official' : 'community';
+        const visibility = req.body.visibility || 'public';
 
         if (!lat || !lng || isNaN(Number(lat)) || isNaN(Number(lng))) {
             return res.status(400).json({ error: 'Invalid latitude and longitude' });
@@ -94,9 +96,13 @@ export const createChannel = async (req: AuthenticatedRequest, res: Response) =>
             return res.status(401).json({ error: 'Authentication error' });
         }
 
-        const newChannel = await ChannelModel.createChannel(name, lat, lng, radiusMeters, createdBy, type);
-        return res.status(201).json({ 
-            channel: newChannel 
+        if (visibility !== 'public' && visibility !== 'private') {
+            return res.status(400).json({ error: 'Visibility must be "public" or "private"' });
+        }
+
+        const newChannel = await ChannelModel.createChannel(name, lat, lng, radiusMeters, createdBy, type, visibility);
+        return res.status(201).json({
+            channel: newChannel
         });
 
     } catch (error) {
@@ -134,3 +140,104 @@ export const deleteChannel = async (req: AuthenticatedRequest, res: Response) =>
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+// --- Channel Members ---
+
+export const getChannelMembers = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const channelId = req.params.id as string;
+        const members = await ChannelModel.getChannelMembers(channelId);
+        return res.json({ members });
+    } catch (error) {
+        console.error("Error in getChannelMembers:", error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const addChannelMember = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const channelId = req.params.id as string;
+        const userId = req.AuthUser?.id;
+        const targetUserId = req.body.userId as string;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Authentication error' });
+        }
+
+        if (!targetUserId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
+
+        // Only the channel creator can add members
+        const channel = await ChannelModel.getChannelById(channelId);
+        if (!channel) {
+            return res.status(404).json({ error: 'Channel not found' });
+        }
+
+        if (channel.createdBy !== userId) {
+            return res.status(403).json({ error: 'Only the channel owner can add members' });
+        }
+
+        await ChannelModel.addChannelMember(channelId, targetUserId);
+        return res.status(201).json({ message: 'Member added successfully' });
+    } catch (error) {
+        console.error("Error in addChannelMember:", error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const removeChannelMember = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const channelId = req.params.id as string;
+        const userId = req.AuthUser?.id;
+        const targetUserId = req.params.userId as string;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Authentication error' });
+        }
+
+        // Only the channel creator can remove members
+        const channel = await ChannelModel.getChannelById(channelId);
+        if (!channel) {
+            return res.status(404).json({ error: 'Channel not found' });
+        }
+
+        if (channel.createdBy !== userId) {
+            return res.status(403).json({ error: 'Only the channel owner can remove members' });
+        }
+
+        const removed = await ChannelModel.removeChannelMember(channelId, targetUserId);
+        if (!removed) {
+            return res.status(404).json({ error: 'Member not found in channel' });
+        }
+
+        return res.status(200).json({ message: 'Member removed successfully' });
+    } catch (error) {
+        console.error("Error in removeChannelMember:", error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Get all non-admin users (for the "add members" picker)
+export const getAllUsers = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.AuthUser?.id;
+        const users = await ChannelModel.getAllMembers(userId);
+        return res.json({ users });
+    } catch (error) {
+        console.error("Error in getAllUsers:", error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Get users who have participated in a channel's chat
+export const getChannelParticipants = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const channelId = req.params.id as string;
+        const participants = await ChannelModel.getChannelParticipants(channelId);
+        return res.json({ participants });
+    } catch (error) {
+        console.error("Error in getChannelParticipants:", error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
