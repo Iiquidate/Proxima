@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal, Alert } from 'react-native';
 import { useLocation } from '../hooks/useLocation';
-import { TouchableOpacity } from 'react-native';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
+import ButtonComponent from '../components/button-style';
+import InputField from '../components/input-fields';
 
 interface Channel {
   id: string;
@@ -13,7 +14,7 @@ interface Channel {
 }
 
 export default function ChannelListScreen({ navigation, route }: any) {
-  const { userId, token } = route.params || {};
+  const { userId, token, role } = route.params || {};
   const theme = useTheme();
   console.log('NearbyList params:', { userId, token });
   const { location, errorMsg } = useLocation();
@@ -183,9 +184,17 @@ export default function ChannelListScreen({ navigation, route }: any) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface.default }]}>
-      <Text style={[styles.header, { color: theme.colors.text.primary }]}>
-        Nearby Communities
-      </Text>
+      <View style={styles.headerRow}>
+        <Text style={[styles.header, { color: theme.colors.text.primary }]}>
+          Nearby Communities
+        </Text>
+        <TouchableOpacity
+          style={[styles.addButton, { backgroundColor: theme.colors.secondary.dark }]}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
       {checkStatus ? (
         <Text style={[styles.statusText, { color: theme.colors.text.secondary }]}>
           {checkStatus}
@@ -229,29 +238,26 @@ export default function ChannelListScreen({ navigation, route }: any) {
           />
         }
       />
-      {/*The modal was researched through React documentation at https://reactnative.dev/docs/modal*/}
-      <Modal 
-        animationType = "fade" 
-        transparent={true} 
-        visible={modalVisible} 
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalOverview}>
-          <View style={styles.modal}>
-            <Text style={styles.modalText}>Create Your Channel Here!</Text> 
-            <InputField placeHolderValue='Channel Name' value={newChannelName} onChangeText={setNewChannelName}/>
-            <InputField placeHolderValue='Radius in Meters' value={newChannelRadius} onChangeText={setNewChannelRadius}/>
-              <View style={styles.buttonDesign}>
-                <ButtonComponent title="Close" actionWhenPressed={() => setModalVisible(false)}/>
-                <ButtonComponent title="Enter" actionWhenPressed={() => handleInsertCommunityChannel()}/>
-              </View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface.light }]}>
+            <Text style={[styles.modalTitle, { color: theme.colors.text.primary }]}>
+              Create Community
+            </Text>
+            <InputField placeHolderValue="Channel Name" value={newChannelName} onChangeText={setNewChannelName} />
+            <InputField placeHolderValue="Radius in Meters" value={newChannelRadius} onChangeText={setNewChannelRadius} />
+            <View style={styles.modalButtons}>
+              <ButtonComponent title="Cancel" actionWhenPressed={() => setModalVisible(false)} variant="secondary" compact />
+              <ButtonComponent title="Create" actionWhenPressed={() => handleInsertCommunityChannel()} variant="primary" compact />
+            </View>
           </View>
         </View>
       </Modal>
-      <TouchableOpacity 
-        style={styles.fab} onPress={() => setModalVisible(true)}>
-        {/*Display plus sign for button*/}
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -261,13 +267,31 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
   header: {
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '700',
+    marginTop: -1,
   },
   statusText: {
     fontSize: 15,
@@ -313,5 +337,26 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textTransform: 'capitalize',
     marginTop: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(53, 47, 41, 0.25)',
+    paddingHorizontal: 24,
+  },
+  modalContent: {
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
   },
 });

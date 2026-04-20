@@ -21,12 +21,14 @@ export default function LoginFormScreen({ navigation }: any) {
     const data = await response.json();
     console.log(data);
     if (response.ok) {
-      console.log('Login data:', { userId: data.user.id, token: data.accessToken });
+      const userRole = data.user?.role || 'member';
+      console.log('Login data:', { userId: data.user.id, token: data.accessToken, role: userRole });
       navigation.navigate('MainApp', {
         screen: 'NearbyList',
         params: {
           userId: data.user.id,
           token: data.accessToken,
+          role: userRole,
         },
       });
     } else {

@@ -5,12 +5,14 @@ type ButtonBasics = {
   title: string;
   actionWhenPressed: () => void;
   variant?: 'primary' | 'secondary' | 'outline';
+  compact?: boolean;
 };
 
 export default function ButtonComponent({
   title,
   actionWhenPressed,
-  variant = 'primary'
+  variant = 'primary',
+  compact = false,
 }: ButtonBasics) {
   const theme = useTheme();
 
@@ -46,7 +48,7 @@ export default function ButtonComponent({
 
   return (
     <TouchableOpacity onPress={actionWhenPressed} activeOpacity={0.7}>
-      <View style={[styles.button, getButtonStyle()]}>
+      <View style={[styles.button, getButtonStyle(), compact && styles.buttonCompact]}>
         <Text style={[styles.buttonText, getTextStyle()]}>
           {title}
         </Text>
@@ -62,6 +64,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     minWidth: 200,
+  },
+  buttonCompact: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    minWidth: 120,
   },
   buttonText: {
     textAlign: 'center',

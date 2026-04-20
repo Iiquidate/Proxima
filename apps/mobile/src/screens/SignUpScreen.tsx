@@ -22,11 +22,13 @@ export default function SignUpScreen({ navigation }: any) {
     const data = await response.json();
     console.log(data);
     if (response.ok) {
+      const userRole = data.user?.role || 'member';
       navigation.navigate('MainApp', {
         screen: 'NearbyList',
         params: {
           userId: data.user.id,
           token: data.session?.access_token,
+          role: userRole,
         },
       });
     } else {
