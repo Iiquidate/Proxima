@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal, Alert } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal, Alert, Animated } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useLocation } from '../hooks/useLocation';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
@@ -204,32 +205,61 @@ export default function ChannelListScreen({ navigation, route }: any) {
         data={allChannels}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.channelRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}
-            activeOpacity={0.6}
-            onPress={() => navigation.navigate('ChatScreen', {
-              channelId: item.id,
-              channelName: item.name,
-              userId: userId,
-              token: token,
-            })}
-          >
-            <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200] }]}>
-              <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
-                {item.type === 'official' ? '#' : '~'}
-              </Text>
-            </View>
-            <View style={styles.channelDetails}>
-              <Text style={[styles.channelName, { color: theme.colors.text.primary }]}>
-                {item.name}
-              </Text>
-              <Text style={[styles.channelType, { color: theme.colors.text.tertiary }]}>
-                {item.type}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) => {
+          const canDelete = item.created_by === userId || role === 'admin';
+
+          const renderDeleteAction = () => (
+            <TouchableOpacity
+              style={styles.deleteAction}
+              onPress={() => {
+                Alert.alert('Delete Channel', `Are you sure you want to delete "${item.name}"?`, [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Delete', style: 'destructive', onPress: () => handleDeleteChannel(item.id) },
+                ]);
+              }}
+            >
+              <Text style={styles.deleteActionText}>Delete</Text>
+            </TouchableOpacity>
+          );
+
+          const channelRow = (
+            <TouchableOpacity
+              style={[styles.channelRow, { backgroundColor: theme.colors.secondary.light, borderColor: theme.colors.secondary[200] }]}
+              activeOpacity={0.6}
+              onPress={() => navigation.navigate('ChatScreen', {
+                channelId: item.id,
+                channelName: item.name,
+                userId: userId,
+                token: token,
+              })}
+            >
+              <View style={[styles.channelIcon, { backgroundColor: theme.colors.secondary[200] }]}>
+                <Text style={[styles.channelIconText, { color: theme.colors.secondary.dark }]}>
+                  {item.type === 'official' ? '#' : '~'}
+                </Text>
+              </View>
+              <View style={styles.channelDetails}>
+                <Text style={[styles.channelName, { color: theme.colors.text.primary }]}>
+                  {item.name}
+                </Text>
+                <Text style={[styles.channelType, { color: theme.colors.text.tertiary }]}>
+                  {item.type}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+
+          if (!canDelete) return channelRow;
+
+          return (
+            <Swipeable
+              renderRightActions={renderDeleteAction}
+              overshootRight={false}
+            >
+              {channelRow}
+            </Swipeable>
+          );
+        }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -337,6 +367,19 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textTransform: 'capitalize',
     marginTop: 2,
+  },
+  deleteAction: {
+    backgroundColor: '#D45B5B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    marginVertical: 3,
+    borderRadius: 12,
+  },
+  deleteActionText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
   },
   modalOverlay: {
     flex: 1,

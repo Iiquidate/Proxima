@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLocation } from './src/hooks/useLocation';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ThemeProvider } from './src/context/ThemeContext';
 import { colors } from './src/theme';
@@ -20,24 +21,26 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider>
-      <NavigationContainer theme={{
-          ...DefaultTheme,
-          colors: {
-            ...DefaultTheme.colors,
-            background: colors.surface.default,
-            card: colors.surface.light,
-            text: colors.text.primary,
-            border: colors.border.light,
-            primary: colors.primary[500],
-          },
-        }}>
-        <View style={[styles.container, { backgroundColor: colors.surface.default }]}>
-          <AppNavigator />
-          <StatusBar style="dark" />
-        </View>
-      </NavigationContainer>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <NavigationContainer theme={{
+            ...DefaultTheme,
+            colors: {
+              ...DefaultTheme.colors,
+              background: colors.surface.default,
+              card: colors.surface.light,
+              text: colors.text.primary,
+              border: colors.border.light,
+              primary: colors.primary[500],
+            },
+          }}>
+          <View style={[styles.container, { backgroundColor: colors.surface.default }]}>
+            <AppNavigator />
+            <StatusBar style="dark" />
+          </View>
+        </NavigationContainer>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 
