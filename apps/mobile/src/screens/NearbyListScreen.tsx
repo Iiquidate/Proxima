@@ -9,6 +9,7 @@ interface Channel {
   id: string;
   name: string;
   type: 'official' | 'community';
+  created_by: string;
 }
 
 export default function ChannelListScreen({ navigation, route }: any) {
@@ -21,6 +22,10 @@ export default function ChannelListScreen({ navigation, route }: any) {
   let text = 'Waiting to obtain location...';
   const [checkStatus, setCheckStatus] = useState(text);
   const [refreshing, setRefreshing] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newChannelName, setNewChannelName] = useState('');
+  const [newChannelRadius, setNewChannelRadius] = useState('');
+
 
   // need this in order to have refresh capabilities
   const displayChannels = async () => {
@@ -68,9 +73,102 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const onRefresh = async () => {
     setRefreshing(true);
     await displayChannels();
-    //console.log('Channels refreshed');
+    //console.log('Channels refreshed'); Used for testing
     setRefreshing(false);
   };
+
+  const handleInsertCommunityChannel = async () => {
+
+    if (!newChannelName.trim()) {
+      Alert.alert('Channel name cannot be empty.');
+      return;
+    }
+
+    if (isNaN(Number(newChannelRadius)) || Number(newChannelRadius) <= 0) {
+      Alert.alert('Please enter a valid radius in meters.');
+      return;
+    }
+
+    try {
+      // Lines 91-105 were researched through Google Gemini in order to get the token in the frontend
+      if (!token) {
+        Alert.alert('User not authenticated. Please log in again.');
+        return;
+      }
+
+      if (!location) {
+        Alert.alert('Error in obtaining location.');
+        return;
+      }
+
+      const response = await fetch(`${SERVER_URL}/channels`, {                                                                                                   
+            method: 'POST',                                                                                                                                                      
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` // Will utilize requireAuth
+             },
+            body: JSON.stringify({
+              name: newChannelName, 
+              lat: location.coords.latitude, 
+              lng: location.coords.longitude,
+              radiusMeters: Number(newChannelRadius),
+              type: 'community'
+            })                                                                                                                            
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating channel:', errorData);
+        Alert.alert('Error creating channel. Please try again.');
+        return;
+      }
+
+      if (response.ok) {
+        setModalVisible(false);
+        setNewChannelName('');
+        setNewChannelRadius('');
+        await displayChannels(); // Refresh channels to get the most updated list
+      }
+    }
+    catch (error) {
+      console.error('Error creating channel', error);
+      return;
+    }
+  }
+
+  const handleDeleteChannel = async (channelId: string) => {
+    try {
+      if (!token) {
+        Alert.alert('User not authenticated. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(`${SERVER_URL}/channels/${channelId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Will utilize requireAuth
+         },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert('Error deleting channel. Please try again.');
+        console.error('Error deleting channel:', data);
+        return;
+      }
+
+      if (response.ok) {
+        Alert.alert('Channel deleted successfully.');
+        console.log('Deleted channel ID:', channelId); // Used for testing
+        await displayChannels(); // Refresh channels to get the most updated list
+      }
+    } catch (error) {
+      console.error('Error deleting channel', error);
+      return;
+    }
+  }
 
   useEffect(() => {
     if (errorMsg) {
@@ -131,6 +229,29 @@ export default function ChannelListScreen({ navigation, route }: any) {
           />
         }
       />
+      {/*The modal was researched through React documentation at https://reactnative.dev/docs/modal*/}
+      <Modal 
+        animationType = "fade" 
+        transparent={true} 
+        visible={modalVisible} 
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalOverview}>
+          <View style={styles.modal}>
+            <Text style={styles.modalText}>Create Your Channel Here!</Text> 
+            <InputField placeHolderValue='Channel Name' value={newChannelName} onChangeText={setNewChannelName}/>
+            <InputField placeHolderValue='Radius in Meters' value={newChannelRadius} onChangeText={setNewChannelRadius}/>
+              <View style={styles.buttonDesign}>
+                <ButtonComponent title="Close" actionWhenPressed={() => setModalVisible(false)}/>
+                <ButtonComponent title="Enter" actionWhenPressed={() => handleInsertCommunityChannel()}/>
+              </View>
+          </View>
+        </View>
+      </Modal>
+      <TouchableOpacity 
+        style={styles.fab} onPress={() => setModalVisible(true)}>
+        {/*Display plus sign for button*/}
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
