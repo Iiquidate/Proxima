@@ -13,8 +13,16 @@ CREATE TABLE channels (
     location GEOGRAPHY(POINT, 4326) NOT NULL,
     radius_meters INTEGER NOT NULL DEFAULT 100,
     type TEXT NOT NULL DEFAULT 'community',
+    visibility TEXT NOT NULL DEFAULT 'public',
     created_by UUID NOT NULL REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE channel_members (
+    channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (channel_id, user_id)
 );
 
 CREATE TABLE messages (
