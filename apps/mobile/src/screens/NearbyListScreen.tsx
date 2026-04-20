@@ -35,27 +35,29 @@ const ChannelImages: Record<string, any> = {
   'Student Rec Center': require('../assets/channel-icons/Student_Rec.png'),
   'The Hub': require('../assets/channel-icons/The_Hub.jpeg'),
   'Turlington Hall': require('../assets/channel-icons/Turlington.jpg'),
+  'The Swamp': require('../assets/channel-icons/UF.png'),
 };
 
-const OfficialLocations: Record<string, { lat: string; lng: string }> = {
-  'Marston Science Library': { lat: "29.648200894251136", lng: "-82.34340824166277" },
-  'Turlington Hall': { lat: "29.64930135428443", lng: "-82.34399647492198" },
-  'Reitz Union': { lat: "29.64666502357952", lng: "-82.3479590979477" },
-  'Library West': {lat: "29.651510420406968", lng: "-82.34204003701252"},
-  'Plaza of the Americas': {lat: "29.65070636085747", lng: "-82.34280258149158"},
-  'Student Rec Center': {lat: "29.650494991604592", lng: "-82.34670833351034"},
-  'Ben Hill Griffin Stadium': {lat: "29.650018177304965", lng: "-82.34872707336257"},
-  'Malachowsky Hall': {lat: "29.64410710874499", lng: "-82.34725918922416"},
-  'Southwest Rec Center': {lat: "29.638845164498186", lng: "-82.36834360713067"},
-  'Carleton Auditorium': {lat: "29.64925817663425", lng: "-82.34162489179809"},
-  'Little Hall': {lat: "29.64891079595824", lng: "-82.34064958779955"},
-  'Broward Dining': {lat: "29.647154655423552", lng: "-82.34140934822895"},
-  'The Hub': {lat: "29.64824853577638", lng: "-82.3454233222773"},
-  'Gator Corner': {lat: "29.648282969009838", lng: "-82.35006101484998"},
-  'Flavet Field': {lat: "29.646891243700114", lng: "-82.35429342709683"},
-  'Lake Alice': {lat: "29.64339692466425", lng: "-82.36227247711908"},
-  'Matherly Hall': {lat: "29.651686466958722", lng: "-82.34102783162135"},
-  'Curtis M. Phillips Center': {lat: "29.635481784725847", lng: "-82.36935964796055"},
+const OfficialLocations: Record<string, { lat: string; lng: string; radius: string }> = {
+  'Marston Science Library': { lat: "29.648200894251136", lng: "-82.34340824166277", radius: "50" },
+  'Turlington Hall': { lat: "29.64930135428443", lng: "-82.34399647492198", radius: "50" },
+  'Reitz Union': { lat: "29.64666502357952", lng: "-82.3479590979477", radius: "80" },
+  'Library West': {lat: "29.651510420406968", lng: "-82.34204003701252", radius: "50"},
+  'Plaza of the Americas': {lat: "29.65070636085747", lng: "-82.34280258149158", radius: "80"},
+  'Student Rec Center': {lat: "29.650494991604592", lng: "-82.34670833351034", radius: "60"},
+  'Ben Hill Griffin Stadium': {lat: "29.650018177304965", lng: "-82.34872707336257", radius: "150"},
+  'Malachowsky Hall': {lat: "29.64410710874499", lng: "-82.34725918922416", radius: "60"},
+  'Southwest Rec Center': {lat: "29.638845164498186", lng: "-82.36834360713067", radius: "100"},
+  'Carleton Auditorium': {lat: "29.64925817663425", lng: "-82.34162489179809", radius: "40"},
+  'Little Hall': {lat: "29.64891079595824", lng: "-82.34064958779955", radius: "40"},
+  'Broward Dining': {lat: "29.647154655423552", lng: "-82.34140934822895", radius: "40"},
+  'The Hub': {lat: "29.64824853577638", lng: "-82.3454233222773", radius: "40"},
+  'Gator Corner': {lat: "29.648282969009838", lng: "-82.35006101484998", radius: "40"},
+  'Flavet Field': {lat: "29.646891243700114", lng: "-82.35429342709683", radius: "150"},
+  'Lake Alice': {lat: "29.64339692466425", lng: "-82.36227247711908", radius: "200"},
+  'Matherly Hall': {lat: "29.651686466958722", lng: "-82.34102783162135", radius: "40"},
+  'Curtis M. Phillips Center': {lat: "29.635481784725847", lng: "-82.36935964796055", radius: "80"},
+  'The Swamp': {lat: "29.648064621555974", lng: "-82.35335097738442", radius: "1500"},
 };
 
 export default function ChannelListScreen({ navigation, route }: any) {
@@ -81,6 +83,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
   if (OfficialLocations[text]) {
     setNewChannelLat(OfficialLocations[text].lat);
     setNewChannelLng(OfficialLocations[text].lng);
+    setNewChannelRadius(OfficialLocations[text].radius);
   }
 };
 
