@@ -30,7 +30,7 @@ export const getAllChannels = async (req: Request, res: Response) => {
     }
 }
 
-export const getNearbyChannels = async (req: Request, res: Response) => {
+export const getNearbyChannels = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const latitude = req.query.lat;
         const longitude = req.query.lng;
@@ -39,7 +39,10 @@ export const getNearbyChannels = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid latitude and longitude' });
         }
 
-        const channels = await ChannelModel.getNearbyChannels(parseFloat(latitude as string), parseFloat(longitude as string));
+        const isAdmin = req.AuthUser?.role === 'admin';
+        const channels = isAdmin
+            ? await ChannelModel.getAllChannels()
+            : await ChannelModel.getNearbyChannels(parseFloat(latitude as string), parseFloat(longitude as string));
 
         return res.json({
             channels: channels || [],
