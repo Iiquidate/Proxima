@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { io, Socket } from 'socket.io-client';
 import { SERVER_URL } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ChatScreen({ route }: any) {
     const { channelId, channelName, userId, token } = route.params;
@@ -9,6 +11,7 @@ export default function ChatScreen({ route }: any) {
     const [input, setInput] = useState('');
     const socketRef = useRef<Socket | null>(null);
     const flatListRef = useRef<FlatList>(null);
+    const theme = useTheme();
 
     useEffect(() => {
         // Load message history
@@ -56,7 +59,7 @@ export default function ChatScreen({ route }: any) {
 
     return (
         <KeyboardAvoidingView
-            style={styles.container}
+            style={[styles.container, { backgroundColor: theme.colors.surface.default }]}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={90}
         >
@@ -71,14 +74,20 @@ export default function ChatScreen({ route }: any) {
                     return (
                         <View style={[
                             styles.messageBubble,
-                            isOwnMessage ? styles.ownBubble : styles.otherBubble,
+                            isOwnMessage
+                                ? [styles.ownBubble, { backgroundColor: theme.colors.secondary.dark }]
+                                : [styles.otherBubble, { backgroundColor: theme.colors.secondary.light }],
                         ]}>
                             {!isOwnMessage && (
-                                <Text style={styles.username}>{item.username}</Text>
+                                <Text style={[styles.username, { color: theme.colors.secondary.dark }]}>
+                                    {item.username}
+                                </Text>
                             )}
                             <Text style={[
                                 styles.messageText,
-                                isOwnMessage && styles.ownMessageText,
+                                isOwnMessage
+                                    ? { color: theme.colors.text.inverse }
+                                    : { color: theme.colors.text.primary },
                             ]}>
                                 {item.content}
                             </Text>
@@ -86,19 +95,37 @@ export default function ChatScreen({ route }: any) {
                     );
                 }}
             />
-            <View style={styles.inputRow}>
-                <TextInput
-                    style={styles.input}
-                    value={input}
-                    onChangeText={setInput}
-                    placeholder="Type a message..."
-                    onSubmitEditing={sendMessage}
-                    returnKeyType="send"
-                />
-                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-                    <Text style={styles.sendText}>Send</Text>
-                </TouchableOpacity>
-            </View>
+            <BlurView intensity={60} tint="light" style={styles.inputBlur}>
+                <View style={styles.inputRow}>
+                    <TextInput
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: theme.colors.border.default,
+                                color: theme.colors.text.primary,
+                                backgroundColor: theme.colors.surface.light,
+                            },
+                        ]}
+                        value={input}
+                        onChangeText={setInput}
+                        placeholder="Type a message..."
+                        placeholderTextColor={theme.colors.text.tertiary}
+                        onSubmitEditing={sendMessage}
+                        returnKeyType="send"
+                    />
+                    <TouchableOpacity
+                        style={[
+                            styles.sendButton,
+                            { backgroundColor: theme.colors.secondary.dark },
+                        ]}
+                        onPress={sendMessage}
+                        disabled={!input.trim()}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.sendText}>Send</Text>
+                    </TouchableOpacity>
+                </View>
+            </BlurView>
         </KeyboardAvoidingView>
     );
 }
@@ -106,67 +133,69 @@ export default function ChatScreen({ route }: any) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
     },
     messageList: {
-        paddingVertical: 10,
+        paddingTop: 12,
+        paddingBottom: Platform.OS === 'ios' ? 90 : 70,
+        paddingHorizontal: 4,
     },
     messageBubble: {
-        maxWidth: '75%',
-        padding: 10,
-        marginHorizontal: 15,
+        maxWidth: '78%',
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        marginHorizontal: 12,
         marginVertical: 3,
-        borderRadius: 12,
+        borderRadius: 16,
     },
     ownBubble: {
         alignSelf: 'flex-end',
-        backgroundColor: '#5895d3',
+        borderBottomRightRadius: 4,
     },
     otherBubble: {
         alignSelf: 'flex-start',
-        backgroundColor: '#e8f0fe',
+        borderBottomLeftRadius: 4,
     },
     username: {
         fontSize: 12,
-        fontWeight: 'bold',
-        color: '#5895d3',
+        fontWeight: '600',
         marginBottom: 2,
     },
     messageText: {
-        fontSize: 16,
-        color: '#333',
+        fontSize: 15,
+        lineHeight: 21,
     },
-    ownMessageText: {
-        color: '#fff',
+    inputBlur: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
-        padding: 10,
-        paddingBottom: Platform.OS === 'ios' ? 25 : 10,
-        borderTopWidth: 1,
-        borderColor: '#ddd',
-        backgroundColor: '#fff',
+        padding: 12,
+        paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+        alignItems: 'flex-end',
+        gap: 8,
     },
     input: {
         flex: 1,
         borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 8,
+        borderRadius: 22,
+        paddingHorizontal: 18,
+        paddingVertical: 10,
         fontSize: 16,
-        backgroundColor: '#fff',
+        maxHeight: 100,
     },
     sendButton: {
-        marginLeft: 10,
-        backgroundColor: '#5895d3',
-        borderRadius: 20,
+        borderRadius: 22,
         paddingHorizontal: 20,
+        paddingVertical: 11,
         justifyContent: 'center',
     },
     sendText: {
         color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontWeight: '600',
+        fontSize: 15,
     },
 });
