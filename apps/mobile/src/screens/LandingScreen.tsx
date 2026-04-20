@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import ButtonComponent from '../components/button-style';
 import ProximaLogo from '../components/ProximaLogo';
 import { useTheme } from '../context/ThemeContext';
@@ -26,15 +26,6 @@ export default function LandingScreen({ navigation }: any) {
         />
       </View>
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate('MainApp')}
-        style={styles.devSkip}
-        activeOpacity={0.5}
-      >
-        <Text style={[styles.devSkipText, { color: theme.colors.text.tertiary }]}>
-          Skip to app
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -66,15 +57,5 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 300,
     gap: 12,
-  },
-  devSkip: {
-    position: 'absolute',
-    bottom: 48,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  devSkipText: {
-    fontSize: 13,
-    fontWeight: '400',
   },
 });
