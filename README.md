@@ -134,7 +134,7 @@ proxima/
 
 - [Node.js](https://nodejs.org) v18 or higher
 - **iOS:** Install [TestFlight](https://apps.apple.com/us/app/testflight/id899247664) from the App Store, then navigate to [https://testflight.apple.com/join/GZJxxfUU](https://testflight.apple.com/join/GZJxxfUU) and click **"Install"** to download the Expo Go 55.0.4 beta. We use a beta release of Expo that is not yet available on the App Store.
-- **Android:** Install [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) from the Google Play Store.
+- **Android:** No team members currently own an Android device. As such, we cannot currently guarentee the project configuration will work as the Expo version we are using is not officially released.
 
 ---
 
