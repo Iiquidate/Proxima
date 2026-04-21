@@ -413,8 +413,6 @@ const openInMaps = (channelName: string) => {
             </TouchableOpacity>
           );
 
-          if (!canDelete) return channelRow;
-
           return (
             <Swipeable
               renderLeftActions={renderInfoAction}
