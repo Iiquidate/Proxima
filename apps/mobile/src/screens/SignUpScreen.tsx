@@ -5,6 +5,7 @@ import InputField from '../components/input-fields';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 
+// sign up form that registers a new user and navigates to the main app
 export default function SignUpScreen({ navigation }: any) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function SignUpScreen({ navigation }: any) {
   const [errorMsg, setErrorMsg] = useState('');
   const theme = useTheme();
 
+  // sends registration request to the server and navigates on success
   async function handleSignUp() {
     setErrorMsg('');
     const response = await fetch(`${SERVER_URL}/auth/register`, {

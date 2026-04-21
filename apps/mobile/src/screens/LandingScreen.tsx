@@ -4,6 +4,7 @@ import ButtonComponent from '../components/button-style';
 import ProximaLogo from '../components/ProximaLogo';
 import { useTheme } from '../context/ThemeContext';
 
+// landing page with sign in and create account buttons
 export default function LandingScreen({ navigation }: any) {
   const theme = useTheme();
 

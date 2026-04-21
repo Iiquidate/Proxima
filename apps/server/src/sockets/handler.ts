@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';                                                                                                                                                   
 import { createMessage } from '../models/messageModel';
                                                                                                                                                                                     
+// sets up socket.io event listeners for real-time messaging
 export function registerSocketHandlers(io: Server) {
     io.on('connection', (socket) => {                                                                                                                                                 
         console.log('Client connected:', socket.id);                                                                                                                                  

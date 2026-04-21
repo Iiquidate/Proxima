@@ -6,6 +6,7 @@ import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 import ButtonComponent from '../components/button-style';
 
+// real-time chat screen using socket.io for sending and receiving messages
 export default function ChatScreen({ route }: any) {
     const { channelId, channelName, userId, token, role } = route.params;
     const [messages, setMessages] = useState<any[]>([]);
@@ -50,6 +51,7 @@ export default function ChatScreen({ route }: any) {
         };
     }, [channelId]);
 
+    // emits a message to the channel via socket.io
     const sendMessage = () => {
         if (!input.trim() || !socketRef.current) return;
         socketRef.current.emit('sendMessage', {
@@ -60,12 +62,14 @@ export default function ChatScreen({ route }: any) {
         setInput('');
     };
 
+    // opens the delete confirmation modal for admins on long press
     const handleLongPressMessage = (messageId: string) => {
         if (role !== 'admin') return;
         setMessageToDeleteId(messageId);
         setDeleteModalVisible(true);
     };
 
+    // sends delete request for a message and removes it from the list
     const handleDeleteMessage = async () => {
         if (!messageToDeleteId || !token) {
             setDeleteModalVisible(false);

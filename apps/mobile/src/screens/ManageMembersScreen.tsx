@@ -10,6 +10,7 @@ interface User {
   role: string;
 }
 
+// screen for channel owners to add and remove members from a private channel
 export default function ManageMembersScreen({ route }: any) {
   const { channelId, channelName, token } = route.params;
   const theme = useTheme();
@@ -19,6 +20,7 @@ export default function ManageMembersScreen({ route }: any) {
 
   const authHeaders = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+  // loads all users and current channel members from the server
   const fetchData = async () => {
     try {
       const [usersRes, membersRes] = await Promise.all([
@@ -42,6 +44,7 @@ export default function ManageMembersScreen({ route }: any) {
 
   const memberIds = new Set(members.map(m => m.id));
 
+  // sends request to add a user to the channel
   const addMember = async (userId: string) => {
     try {
       const response = await fetch(`${SERVER_URL}/channels/${channelId}/members`, {
@@ -61,6 +64,7 @@ export default function ManageMembersScreen({ route }: any) {
     }
   };
 
+  // confirms and sends request to remove a user from the channel
   const removeMember = async (userId: string, username: string) => {
     Alert.alert('Remove Member', `Remove ${username} from this channel?`, [
       { text: 'Cancel', style: 'cancel' },

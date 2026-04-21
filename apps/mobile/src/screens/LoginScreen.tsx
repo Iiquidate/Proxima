@@ -5,12 +5,14 @@ import InputField from '../components/input-fields';
 import { SERVER_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 
+// login form that authenticates the user and navigates to the main app
 export default function LoginFormScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const theme = useTheme();
 
+  // sends login request to the server and navigates on success
   async function handleLogin() {
     setErrorMsg('');
     const response = await fetch(`${SERVER_URL}/auth/login`, {

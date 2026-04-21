@@ -8,6 +8,7 @@ type ButtonBasics = {
   compact?: boolean;
 };
 
+// reusable button component with primary, secondary, outline, and danger variants
 export default function ButtonComponent({
   title,
   actionWhenPressed,
@@ -16,6 +17,7 @@ export default function ButtonComponent({
 }: ButtonBasics) {
   const theme = useTheme();
 
+  // returns the background and border styles for the current variant
   const getButtonStyle = () => {
     switch (variant) {
       case 'secondary':
@@ -39,6 +41,7 @@ export default function ButtonComponent({
     }
   };
 
+  // returns the text color for the current variant
   const getTextStyle = () => {
     switch (variant) {
       case 'secondary':

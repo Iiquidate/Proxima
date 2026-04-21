@@ -61,6 +61,7 @@ const OfficialLocations: Record<string, { lat: string; lng: string; radius: stri
   'The Swamp': {lat: "29.648064621555974", lng: "-82.35335097738442", radius: "15000"},
 };
 
+// main screen showing nearby and all community channels with create/delete actions
 export default function ChannelListScreen({ navigation, route }: any) {
   const { userId, token, role } = route.params || {};
   const theme = useTheme();
@@ -80,6 +81,7 @@ export default function ChannelListScreen({ navigation, route }: any) {
   const [newChannelLng, setNewChannelLng] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
 
+  // updates channel name and auto-fills coordinates if it matches an official location
   const handleNameChange = (text: string) => {
   setNewChannelName(text); // Still update the name normally
 
@@ -174,6 +176,7 @@ const openInMaps = (channelName: string) => {
     setRefreshing(false);
   };
 
+  // validates input and sends request to create a new channel
   const handleInsertCommunityChannel = async () => {
 
     if (!newChannelName.trim()) {
@@ -249,6 +252,7 @@ const openInMaps = (channelName: string) => {
     }
   }
 
+  // sends request to delete a channel and refreshes the list
   const handleDeleteChannel = async (channelId: string) => {
     try {
       if (!token) {

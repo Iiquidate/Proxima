@@ -9,6 +9,7 @@ interface User {
   role: string;
 }
 
+// displays a list of users who have participated in a channel's chat
 export default function ChannelMembersScreen({ route }: any) {
   const { channelId, channelName, token } = route.params;
   const theme = useTheme();

@@ -1,6 +1,7 @@
 import pool from '../db/connection';
 import { ChatMessage } from '@proxima/common';
 
+// fetches all messages for a channel ordered by creation time
 export async function getMessagesByChannelId(channelId: string): Promise<ChatMessage[]> {
     const result = await pool.query(
         `SELECT m.id, m.channel_id AS "channelId", m.user_id AS "userId", u.username, u.role,
@@ -15,6 +16,7 @@ export async function getMessagesByChannelId(channelId: string): Promise<ChatMes
     return result.rows as ChatMessage[];
 }
 
+// inserts a new message and returns it with the sender's username and role
 export async function createMessage(
     channelId: string,
     userId: string,
@@ -36,6 +38,7 @@ export async function createMessage(
     return result.rows[0] as ChatMessage;
 }
 
+// deletes a single message by its id
 export async function deleteMessage(messageId: string): Promise<boolean> {
     const result = await pool.query(
         `DELETE FROM messages
@@ -46,6 +49,7 @@ export async function deleteMessage(messageId: string): Promise<boolean> {
     return result.rowCount === 1;
 }
 
+// bulk deletes messages older than the specified number of hours
 export async function purgeOldMessages(hours: number): Promise<number> {
     const result = await pool.query(
         `DELETE FROM messages

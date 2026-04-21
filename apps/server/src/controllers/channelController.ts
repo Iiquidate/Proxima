@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as ChannelModel from '../models/channelModel';
 import {AuthenticatedRequest} from '../middleware/requireAuth'; // only need AuthenticatedRequest from the middleware, since it's the interface
 
+// returns all admin-created official channels
 export const getOfficialChannels = async (req: Request, res: Response) => {
     try {
         const official = await ChannelModel.getOfficialChannels();
@@ -17,6 +18,7 @@ export const getOfficialChannels = async (req: Request, res: Response) => {
 }
 
 
+// returns all channels visible to the authenticated user
 export const getAllChannels = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const userId = req.AuthUser?.id;
@@ -32,6 +34,7 @@ export const getAllChannels = async (req: AuthenticatedRequest, res: Response) =
     }
 }
 
+// returns channels within range of the user's lat/lng coordinates
 export const getNearbyChannels = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const latitude = req.query.lat;
@@ -55,6 +58,7 @@ export const getNearbyChannels = async (req: AuthenticatedRequest, res: Response
     }
 };
 
+// returns a single channel by its id
 export const getChannelById = async (req: Request, res: Response) => {
     try {
         // Line below was researched through Google Gemini
@@ -111,6 +115,7 @@ export const createChannel = async (req: AuthenticatedRequest, res: Response) =>
     }
 }
 
+// deletes a channel, admins can delete any while members can only delete their own
 export const deleteChannel = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const id = req.params.id as string;
@@ -143,6 +148,7 @@ export const deleteChannel = async (req: AuthenticatedRequest, res: Response) =>
 
 // --- Channel Members ---
 
+// returns the list of members for a private channel
 export const getChannelMembers = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const channelId = req.params.id as string;
@@ -154,6 +160,7 @@ export const getChannelMembers = async (req: AuthenticatedRequest, res: Response
     }
 };
 
+// adds a user to a private channel, only the channel owner can do this
 export const addChannelMember = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const channelId = req.params.id as string;
@@ -186,6 +193,7 @@ export const addChannelMember = async (req: AuthenticatedRequest, res: Response)
     }
 };
 
+// removes a user from a private channel, only the channel owner can do this
 export const removeChannelMember = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const channelId = req.params.id as string;

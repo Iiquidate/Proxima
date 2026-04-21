@@ -9,6 +9,7 @@ type InputFieldBasics = {
   secureTextEntry?: boolean;
 };
 
+// reusable themed text input with placeholder and optional secure entry
 export default function InputField({
   placeHolderValue,
   value,

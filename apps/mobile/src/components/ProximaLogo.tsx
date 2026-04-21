@@ -6,6 +6,7 @@ interface ProximaLogoProps {
   height?: number;
 }
 
+// renders the proxima svg logo scaled to the given width
 export default function ProximaLogo({ width = 280, height }: ProximaLogoProps) {
   const aspectRatio = 48.62 / 221.38;
   const computedHeight = height ?? width * aspectRatio;

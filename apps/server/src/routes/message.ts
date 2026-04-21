@@ -4,6 +4,7 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/requireAuth';
                                                                                                                                                                                     
 const router = Router();                                                                                                                                                              
                                                                                                                                                                                     
+// fetches all messages for a given channel
 router.get('/:channelId', requireAuth, async (req: AuthenticatedRequest, res: Response) => {                                                                                        
     try {
         const { channelId } = req.params as { channelId: string };
@@ -15,6 +16,7 @@ router.get('/:channelId', requireAuth, async (req: AuthenticatedRequest, res: Re
     }                                                                                                                                                                                 
 });
 
+// deletes a message by id, admin only
 router.delete('/:messageId', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { messageId } = req.params as { messageId: string };

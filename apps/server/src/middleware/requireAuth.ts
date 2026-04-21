@@ -7,6 +7,7 @@ export interface AuthenticatedRequest extends Request {
   AuthUser?: AuthUser & { role: string }; // Get the role from the database and include it in the AuthUser type
 }
 
+// validates bearer token via supabase and attaches user info to the request
 export async function requireAuth(
   req: AuthenticatedRequest,
   res: Response,

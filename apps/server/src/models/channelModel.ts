@@ -1,6 +1,7 @@
 import pool from '../db/connection';
 import { Channel, User } from '@proxima/common';
 
+// queries a single channel by its id
 export async function getChannelById(id: string): Promise<Channel | null> {
     const result = await pool.query(
         `SELECT id, name, radius_meters AS "radiusMeters", created_by AS "createdBy", created_at, type, visibility,
@@ -16,6 +17,7 @@ export async function getChannelById(id: string): Promise<Channel | null> {
     return result.rows[0] as Channel;
 }
 
+// queries all channels with type 'official'
 export async function getOfficialChannels(): Promise<Channel[]> {
     const result = await pool.query(
         `SELECT id, name, radius_meters AS "radiusMeters", created_by AS "createdBy", created_at, type, visibility,
@@ -28,6 +30,7 @@ export async function getOfficialChannels(): Promise<Channel[]> {
     return result.rows as Channel[];
 }
 
+// queries all channels the user has access to based on role and membership
 export async function getAllChannels(userId?: string, role?: string): Promise<Channel[]> {
     // Admins see all channels including private ones
     if (role === 'admin') {
@@ -55,6 +58,7 @@ export async function getAllChannels(userId?: string, role?: string): Promise<Ch
     return result.rows as Channel[];
 }
 
+// queries channels within geographic range using postgis ST_DWithin
 export async function getNearbyChannels(lat: number, lng: number, userId?: string, role?: string): Promise<Channel[]> {
     // Admins see all channels including private ones
     if (role === 'admin') {
@@ -93,6 +97,7 @@ export async function getNearbyChannels(lat: number, lng: number, userId?: strin
     return result.rows as Channel[];
 }
 
+// inserts a new channel with a postgis geography point for its location
 export async function createChannel(
     name: string,
     lat: number,
@@ -114,6 +119,7 @@ export async function createChannel(
     return result.rows[0] as Channel;
 }
 
+// deletes a channel only if the requesting user is the creator
 export async function deleteChannel(id: string, userId: string): Promise<boolean> {
     const result = await pool.query(
         `DELETE FROM channels
@@ -137,6 +143,7 @@ export async function adminDeleteChannel(id: string): Promise<boolean> {
 
 // --- Channel Members ---
 
+// adds a user to a channel's member list, ignores duplicates
 export async function addChannelMember(channelId: string, userId: string): Promise<void> {
     await pool.query(
         `INSERT INTO channel_members (channel_id, user_id)
@@ -146,6 +153,7 @@ export async function addChannelMember(channelId: string, userId: string): Promi
     );
 }
 
+// removes a user from a channel's member list
 export async function removeChannelMember(channelId: string, userId: string): Promise<boolean> {
     const result = await pool.query(
         `DELETE FROM channel_members
@@ -156,6 +164,7 @@ export async function removeChannelMember(channelId: string, userId: string): Pr
     return result.rowCount === 1;
 }
 
+// queries all members of a channel joined with user info
 export async function getChannelMembers(channelId: string): Promise<User[]> {
     const result = await pool.query(
         `SELECT u.id, u.username, u.role
@@ -169,6 +178,7 @@ export async function getChannelMembers(channelId: string): Promise<User[]> {
     return result.rows as User[];
 }
 
+// checks if a user is a member of a given channel
 export async function isChannelMember(channelId: string, userId: string): Promise<boolean> {
     const result = await pool.query(
         `SELECT 1 FROM channel_members
