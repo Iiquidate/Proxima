@@ -133,7 +133,7 @@ proxima/
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v18 or higher
-- **iOS:** Install [TestFlight](https://apps.apple.com/us/app/testflight/id899247664) from the App Store, then navigate to [https://testflight.apple.com/join/GZJxxfUU](https://testflight.apple.com/join/GZJxxfUU) and click **"View in TestFlight"** to install the Expo Go beta. We use a beta release of Expo that is not yet available on the App Store.
+- **iOS:** Install [TestFlight](https://apps.apple.com/us/app/testflight/id899247664) from the App Store, then navigate to [https://testflight.apple.com/join/GZJxxfUU](https://testflight.apple.com/join/GZJxxfUU) and click **"Install"** to download the Expo Go 55.0.4 beta. We use a beta release of Expo that is not yet available on the App Store.
 - **Android:** Install [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) from the Google Play Store.
 
 ---
@@ -159,14 +159,18 @@ The backend server and database are already hosted on Render — no server setup
    npx expo start
    ```
    Scan the QR code with Expo Go on your phone to launch the app.
+   It is reccomended that you agree to allow Expo to find devices on your local network.
+   
+   **IMPORTANT:** This app is largely location based. It is vital you allow your location to be shared.
 
-4. **Sharing with others on a different network**
+5. **Sharing with others on a different network**
 
    If someone isn't on the same Wi-Fi as you, use tunnel mode instead:
    ```bash
    npx expo start --tunnel
    ```
-   This creates a public URL that works from any network. It may prompt you to install `@expo/ngrok` the first time. Just say yes.
+   This creates a public URL that works from any network. It may prompt you to install `@expo/ngrok` the first time.
+   You can also use `--tunnel` if you prefer to run the app on your cellular data.
 
 ---
 
