@@ -7,7 +7,7 @@ import { useTheme } from '../context/ThemeContext';
 import ButtonComponent from '../components/button-style';
 
 // real-time chat screen using socket.io for sending and receiving messages
-export default function ChatScreen({ route }: any) {
+export default function ChatScreen({ route, navigation }: any) {
     const { channelId, channelName, userId, token, role } = route.params;
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');

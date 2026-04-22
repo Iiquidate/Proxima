@@ -1,6 +1,6 @@
 # Proxima
 
-A location-aware messaging platform designed to facilitate local connection and passive networking among students. Proxima enables users to discover and join digital chat channels that are physically anchored to specific GPS coordinates — campus libraries, lecture halls, study lounges, or social get-togethers.
+A location-aware messaging platform designed to facilitate local connection and passive networking among students. Proxima enables users to discover and join digital chat channels that are physically anchored to specific GPS coordinates: campus libraries, lecture halls, study lounges, or even social get-togethers.
 
 Built with **React Native (Expo)**, **Express**, **Socket.io**, **PostgreSQL/PostGIS**, and **Supabase Auth**.
 
@@ -133,8 +133,8 @@ proxima/
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v18 or higher
-- **iOS:** Install [TestFlight](https://apps.apple.com/us/app/testflight/id899247664) from the App Store, then navigate to [https://testflight.apple.com/join/GZJxxfUU](https://testflight.apple.com/join/GZJxxfUU), scroll down to **`Previous Builds`**, and install the 55.0.4 build. We use a beta release of Expo that is not yet available on the App Store.
-- **Android:** No team members currently own an Android device. As such, we cannot currently guarentee the project configuration will work as the Expo version we are using is not officially released.
+- **iOS:** Install [Expo Go](https://expo.dev/go) from the App Store.
+- **Android:** No team members currently own an Android device. As such, we cannot currently guarantee the project configuration will work as we have no way to verify ourselves.
 
 ---
 
@@ -157,15 +157,18 @@ The backend server and database are already hosted on Render — no server setup
    ```bash
    cd apps/mobile
    npx expo start
-   ```
-   Scan the QR code with Expo Go on your phone to launch the app.
+   ``` 
+   
+   Ensure that you see "Using $\color{lightblue}{\textsf{Expo Go}}$"  (You may need to press `s` to switch out of $\color{lightblue}{\textsf{development build}}$).
+   
+   Scan the QR code generated, navigate to `Expo Go` at the bottom of the web page, and open in Expo Go.
    It is reccomended that you agree to allow Expo to find devices on your local network.
    
    **IMPORTANT:** This app is largely location based. It is vital you allow your location to be shared.
 
 5. **Sharing with others on a different network**
 
-   If someone isn't on the same Wi-Fi as you, use tunnel mode instead:
+   If someone is not on the same Wi-Fi as you, use tunnel mode instead:
    ```bash
    npx expo start --tunnel
    ```

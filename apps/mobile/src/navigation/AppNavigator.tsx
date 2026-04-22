@@ -2,6 +2,7 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { HeaderBackButton } from '@react-navigation/elements';
 import { colors } from '../theme';
 
 // Import screens
@@ -56,6 +57,14 @@ export default function AppNavigator() {
         component={ChatScreen}
         options={({ route, navigation }: any) => ({
           headerShown: true,
+          headerLeft: () => (
+            <HeaderBackButton
+              tintColor="#000000"
+              label="Back"
+              onPress={() => navigation.goBack()}
+            />
+          ),
+          headerTitleAlign: 'center',
           headerTitle: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('ChannelMembers', {
@@ -64,8 +73,9 @@ export default function AppNavigator() {
                 token: route.params?.token,
               })}
               activeOpacity={0.6}
+              style={{ alignSelf: 'center' }}
             >
-              <Text style={{ color: colors.text.primary, fontWeight: '600', fontSize: 17 }}>
+              <Text style={{ color: colors.text.primary, fontWeight: '600', fontSize: 17, textAlign: 'center' }}>
                 {route.params?.channelName || 'Chat'}
               </Text>
             </TouchableOpacity>
@@ -76,9 +86,16 @@ export default function AppNavigator() {
       <Stack.Screen
         name="ManageMembers"
         component={ManageMembersScreen}
-        options={({ route }: any) => ({
+        options={({ route, navigation }: any) => ({
           headerShown: true,
           title: `Members — ${route.params?.channelName || 'Channel'}`,
+          headerLeft: () => (
+            <HeaderBackButton
+              tintColor="#000000"
+              label="Back"
+              onPress={() => navigation.goBack()}
+            />
+          ),
         })}
       />
 
